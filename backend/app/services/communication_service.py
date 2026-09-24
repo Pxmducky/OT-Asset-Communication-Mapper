@@ -1,241 +1,116 @@
-from sqlalchemy import func, select
-from sqlalchemy.orm import Session
+from sqlalchemy import func, or_, select
+from sqlalchemy.orm import Session, selectinload
 
 from app.models.asset import Asset
 from app.models.communication import Communication
-from app.schemas.communication import (
-    CommunicationCreate,
-    CommunicationUpdate,
-)
+from app.schemas.communication import CommunicationCreate, CommunicationUpdate
+
+KEY_FIELDS = ("source_asset_id", "destination_asset_id", "protocol", "source_port", "destination_port")
 
 
 class CommunicationService:
 
     @staticmethod
-    def get_all(
-        db: Session,
-        skip: int = 0,
-        limit: int = 100,
-    ) -> list[Communication]:
+    def _base_query():
+        # selectinload evita una consulta por fila al leer IP/nombre de cada extremo
+        return select(Communication).options(
+            selectinload(Communication.source_asset),
+            selectinload(Communication.destination_asset),
+        )
 
+    @staticmethod
+    def get_all(db: Session, skip: int = 0, limit: int | None = None) -> list[Communication]:
+        statement = CommunicationService._base_query().order_by(Communication.id).offset(skip)
+        if limit is not None:
+            statement = statement.limit(limit)
+        return list(db.scalars(statement).all())
+
+    @staticmethod
+    def get_by_id(db: Session, communication_id: int) -> Communication | None:
+        return db.scalar(CommunicationService._base_query().where(Communication.id == communication_id))
+
+    @staticmethod
+    def count(db: Session) -> int:
+        return db.scalar(select(func.count(Communication.id))) or 0
+
+    @staticmethod
+    def get_for_asset(db: Session, asset_id: int) -> list[Communication]:
         statement = (
-            select(Communication)
-            .order_by(Communication.id)
-            .offset(skip)
-            .limit(limit)
-        )
-
-        return list(
-            db.scalars(statement).all()
-        )
-
-    @staticmethod
-    def get_by_id(
-        db: Session,
-        communication_id: int,
-    ) -> Communication | None:
-
-        statement = select(
-            Communication
-        ).where(
-            Communication.id == communication_id
-        )
-
-        return db.scalar(statement)
-
-    @staticmethod
-    def count(
-        db: Session,
-    ) -> int:
-
-        statement = select(
-            func.count(Communication.id)
-        )
-
-        return db.scalar(statement) or 0
-
-    @staticmethod
-    def get_for_asset(
-        db: Session,
-        asset_id: int,
-    ) -> list[Communication]:
-
-        statement = (
-            select(Communication)
+            CommunicationService._base_query()
             .where(
-                (
-                    Communication.source_asset_id
-                    == asset_id
-                )
-                |
-                (
-                    Communication.destination_asset_id
-                    == asset_id
+                or_(
+                    Communication.source_asset_id == asset_id,
+                    Communication.destination_asset_id == asset_id,
                 )
             )
-            .order_by(
-                Communication.id
-            )
+            .order_by(Communication.id)
         )
-
-        return list(
-            db.scalars(statement).all()
-        )
+        return list(db.scalars(statement).all())
 
     @staticmethod
-    def create(
+    def exists(
         db: Session,
-        data: CommunicationCreate,
-    ) -> Communication:
-
-        source_asset = db.scalar(
-            select(Asset).where(
-                Asset.id
-                == data.source_asset_id
-            )
+        source_asset_id: int,
+        destination_asset_id: int,
+        protocol: str,
+        source_port: str,
+        destination_port: str,
+        exclude_id: int | None = None,
+    ) -> bool:
+        statement = select(Communication.id).where(
+            Communication.source_asset_id == source_asset_id,
+            Communication.destination_asset_id == destination_asset_id,
+            Communication.protocol == protocol,
+            Communication.source_port == source_port,
+            Communication.destination_port == destination_port,
         )
+        if exclude_id is not None:
+            statement = statement.where(Communication.id != exclude_id)
+        return db.scalar(statement) is not None
 
-        if source_asset is None:
-            raise ValueError(
-                "Source asset not found."
-            )
+    @staticmethod
+    def _validate_endpoints(db: Session, source_asset_id: int, destination_asset_id: int) -> None:
+        if source_asset_id == destination_asset_id:
+            raise ValueError("El origen y el destino no pueden ser el mismo activo.")
+        if db.get(Asset, source_asset_id) is None:
+            raise ValueError("El activo origen no existe.")
+        if db.get(Asset, destination_asset_id) is None:
+            raise ValueError("El activo destino no existe.")
 
-        destination_asset = db.scalar(
-            select(Asset).where(
-                Asset.id
-                == data.destination_asset_id
-            )
-        )
+    @staticmethod
+    def create(db: Session, data: CommunicationCreate) -> Communication:
+        values = data.model_dump()
+        CommunicationService._validate_endpoints(db, values["source_asset_id"], values["destination_asset_id"])
 
-        if destination_asset is None:
-            raise ValueError(
-                "Destination asset not found."
-            )
+        if CommunicationService.exists(db, **{key: values[key] for key in KEY_FIELDS}):
+            raise ValueError("Esa comunicación ya existe (mismo origen, destino, protocolo y puertos).")
 
-        existing = db.scalar(
-            select(Communication).where(
-                Communication.source_asset_id
-                == data.source_asset_id,
-                Communication.destination_asset_id
-                == data.destination_asset_id,
-                Communication.protocol
-                == data.protocol,
-                Communication.source_port
-                == data.source_port,
-                Communication.destination_port
-                == data.destination_port,
-            )
-        )
-
-        if existing is not None:
-            raise ValueError(
-                "Communication already exists."
-            )
-
-        communication = Communication(
-            source_asset_id=data.source_asset_id,
-            destination_asset_id=data.destination_asset_id,
-            source=data.source,
-            destination=data.destination,
-            protocol=data.protocol,
-            source_port=data.source_port,
-            destination_port=data.destination_port,
-            source_name=data.source_name,
-            destination_name=data.destination_name,
-        )
-
+        communication = Communication(**values)
         db.add(communication)
         db.commit()
-        db.refresh(communication)
-
-        return communication
+        return CommunicationService.get_by_id(db, communication.id)
 
     @staticmethod
-    def update(
-        db: Session,
-        communication: Communication,
-        data: CommunicationUpdate,
-    ) -> Communication:
+    def update(db: Session, communication: Communication, data: CommunicationUpdate) -> Communication:
+        changes = data.model_dump(exclude_unset=True)
 
-        if data.source_asset_id is not None:
+        for field in ("source_asset_id", "destination_asset_id", "protocol"):
+            if field in changes and changes[field] is None:
+                raise ValueError(f"El campo {field} no puede quedar vacío.")
 
-            source_asset = db.scalar(
-                select(Asset).where(
-                    Asset.id
-                    == data.source_asset_id
-                )
-            )
+        merged = {key: changes.get(key, getattr(communication, key)) for key in KEY_FIELDS}
+        CommunicationService._validate_endpoints(db, merged["source_asset_id"], merged["destination_asset_id"])
 
-            if source_asset is None:
-                raise ValueError(
-                    "Source asset not found."
-                )
+        if CommunicationService.exists(db, **merged, exclude_id=communication.id):
+            raise ValueError("Ya existe otra comunicación idéntica.")
 
-            communication.source_asset_id = (
-                data.source_asset_id
-            )
-
-        if data.destination_asset_id is not None:
-
-            destination_asset = db.scalar(
-                select(Asset).where(
-                    Asset.id
-                    == data.destination_asset_id
-                )
-            )
-
-            if destination_asset is None:
-                raise ValueError(
-                    "Destination asset not found."
-                )
-
-            communication.destination_asset_id = (
-                data.destination_asset_id
-            )
-
-        if data.source is not None:
-            communication.source = data.source
-
-        if data.destination is not None:
-            communication.destination = (
-                data.destination
-            )
-
-        if data.protocol is not None:
-            communication.protocol = (
-                data.protocol
-            )
-
-        if data.source_port is not None:
-            communication.source_port = (
-                data.source_port
-            )
-
-        if data.destination_port is not None:
-            communication.destination_port = (
-                data.destination_port
-            )
-
-        if data.source_name is not None:
-            communication.source_name = (
-                data.source_name
-            )
-
-        if data.destination_name is not None:
-            communication.destination_name = (
-                data.destination_name
-            )
+        for field, value in changes.items():
+            setattr(communication, field, value)
 
         db.commit()
-        db.refresh(communication)
-
-        return communication
+        return CommunicationService.get_by_id(db, communication.id)
 
     @staticmethod
-    def delete(
-        db: Session,
-        communication: Communication,
-    ) -> None:
-
+    def delete(db: Session, communication: Communication) -> None:
         db.delete(communication)
         db.commit()

@@ -1,36 +1,45 @@
-
-from dataclasses import dataclass
+import ipaddress
+import re
+from dataclasses import dataclass, field
+from io import BytesIO
 from pathlib import Path
 
-import pandas as pd
+from openpyxl import load_workbook
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.models import Asset, Communication
+from app.services.asset_service import AssetService
 
-
-ASSETS_REQUIRED_COLUMNS = {
-    "asset_code",
-    "asset_name",
-    "asset_type",
-    "ip",
-    "mac",
-    "hostname",
-    "vendor",
-    "product",
+# Encabezados alternativos -> nombre interno
+HEADER_ALIASES = {
+    "from": "source", "src": "source", "source_ip": "source", "origen": "source", "ip_origen": "source",
+    "to": "destination", "dst": "destination", "destination_ip": "destination",
+    "destino": "destination", "ip_destino": "destination",
+    "from_ports": "source_port", "source_ports": "source_port", "puerto_origen": "source_port",
+    "to_ports": "destination_port", "destination_ports": "destination_port", "puerto_destino": "destination_port",
+    "protocolo": "protocol",
+    "codigo": "asset_code", "código": "asset_code",
+    "nombre": "asset_name", "tipo": "asset_type", "fabricante": "vendor", "producto": "product",
+    "descripcion": "description", "descripción": "description",
+    "planta": "plant", "nave": "building",
+    "linea": "production_line", "línea": "production_line", "line": "production_line",
+    "linea_de_produccion": "production_line", "línea_de_producción": "production_line",
 }
 
-COMMUNICATIONS_REQUIRED_COLUMNS = {
-    "source_asset",
-    "destination_asset",
-    "source",
-    "destination",
-    "protocol",
-    "source_port",
-    "destination_port",
-    "source_name",
-    "destination_name",
+ASSET_FIELDS = (
+    "asset_name", "asset_type", "mac", "hostname", "vendor", "product",
+    "description", "plant", "building", "production_line", "vlan",
+)
+
+# Prefijos de columnas con datos del activo en hojas de comunicaciones
+SIDE_PREFIXES = {
+    "source": ("source_", "from_"),
+    "destination": ("destination_", "to_"),
 }
+
+MAC_PATTERN = re.compile(r"^([0-9a-f]{2}:){5}[0-9a-f]{2}$")
+MAX_ERRORS = 100
 
 
 @dataclass
@@ -38,396 +47,304 @@ class ImportResult:
     assets_created: int = 0
     assets_updated: int = 0
     communications_created: int = 0
-    communications_updated: int = 0
     communications_skipped: int = 0
-    errors: int = 0
+    rows_skipped: int = 0
+    errors: list[str] = field(default_factory=list)
+
+    def add_error(self, message: str) -> None:
+        if len(self.errors) < MAX_ERRORS:
+            self.errors.append(message)
 
 
 class ExcelImportError(Exception):
-    """Raised when the Excel file cannot be imported safely."""
+    """El archivo no se puede importar de forma segura."""
 
 
 class ExcelImporter:
+    """Importa activos y comunicaciones y los COMBINA con el inventario actual.
+
+    - Las comunicaciones que ya existen se omiten.
+    - Los activos se identifican por IP (o por asset_code) y nunca se
+      sobrescriben: solo se completan los campos que estén vacíos.
+    - No depende de fórmulas: los activos se resuelven por IP.
+
+    Formatos aceptados (se detectan por los encabezados de cada hoja):
+    - Hoja de activos: columna 'ip' (+ asset_code, asset_name, planta, nave...).
+    - Hoja de comunicaciones: 'source'/'destination' o 'from'/'to',
+      protocol, puertos y opcionalmente from_asset_name, to_mac, etc.
+    """
+
     def __init__(self, db: Session):
         self.db = db
+        self.result = ImportResult()
+        self._by_ip: dict[str, Asset] = {}
+        self._by_code: dict[str, Asset] = {}
+        self._next_number = 0
+        self._existing_keys: set[tuple] = set()
+        self._created_ids: set[int] = set()
+        self._provisional_ids: set[int] = set()
+
+    # ---------- entrada ----------
 
     def import_file(self, file_path: str | Path) -> ImportResult:
         path = Path(file_path)
-
         if not path.exists():
-            raise ExcelImportError(
-                f"Excel file not found: {path}"
-            )
+            raise ExcelImportError(f"No existe el archivo: {path}")
+        if path.suffix.lower() not in {".xlsx", ".xlsm"}:
+            raise ExcelImportError("El archivo debe ser .xlsx o .xlsm")
+        return self.import_bytes(path.read_bytes())
 
-        if path.suffix.lower() not in {".xlsx", ".xls"}:
-            raise ExcelImportError(
-                "The file must be an Excel workbook (.xlsx or .xls)."
-            )
-
+    def import_bytes(self, content: bytes) -> ImportResult:
         try:
-            workbook = pd.ExcelFile(path)
+            workbook = load_workbook(BytesIO(content), read_only=True, data_only=True)
         except Exception as exc:
+            raise ExcelImportError(f"No se pudo abrir el Excel: {exc}") from exc
+
+        asset_sheets, communication_sheets = [], []
+        for sheet in workbook.worksheets:
+            headers, rows = self._read_sheet(sheet)
+            if {"source", "destination"} <= headers:
+                communication_sheets.append((sheet.title, rows))
+            elif "ip" in headers:
+                asset_sheets.append((sheet.title, rows))
+        workbook.close()
+
+        if not asset_sheets and not communication_sheets:
             raise ExcelImportError(
-                f"Could not open Excel file: {exc}"
-            ) from exc
+                "No se encontró una hoja de activos (columna 'ip') ni de comunicaciones "
+                "(columnas 'source'/'destination' o 'from'/'to')."
+            )
 
-        self._validate_sheets(workbook.sheet_names)
-
+        self._load_existing()
         try:
-            assets_df = pd.read_excel(
-                workbook,
-                sheet_name="Assets",
-                dtype=object,
-            )
-
-            communications_df = pd.read_excel(
-                workbook,
-                sheet_name="Communications",
-                dtype=object,
-            )
-        except Exception as exc:
-            raise ExcelImportError(
-                f"Could not read Excel sheets: {exc}"
-            ) from exc
-
-        self._validate_columns(
-            assets_df,
-            ASSETS_REQUIRED_COLUMNS,
-            "Assets",
-        )
-
-        self._validate_columns(
-            communications_df,
-            COMMUNICATIONS_REQUIRED_COLUMNS,
-            "Communications",
-        )
-
-        result = ImportResult()
-
-        try:
-            self._import_assets(
-                assets_df,
-                result,
-            )
-
-            self._import_communications(
-                communications_df,
-                result,
-            )
-
+            for title, rows in asset_sheets:
+                self._import_assets(title, rows)
+            for title, rows in communication_sheets:
+                self._import_communications(title, rows)
             self.db.commit()
-
         except Exception:
             self.db.rollback()
             raise
 
-        return result
+        return self.result
+
+    # ---------- lectura ----------
 
     @staticmethod
-    def _validate_sheets(sheet_names: list[str]) -> None:
-        required_sheets = {
-            "Assets",
-            "Communications",
-        }
-
-        missing = required_sheets - set(sheet_names)
-
-        if missing:
-            missing_text = ", ".join(sorted(missing))
-
-            raise ExcelImportError(
-                f"Missing required sheet(s): {missing_text}"
-            )
+    def _normalize_header(value) -> str:
+        header = str(value).strip().lower().replace(" ", "_").replace("-", "_")
+        return HEADER_ALIASES.get(header, header)
 
     @staticmethod
-    def _validate_columns(
-        dataframe: pd.DataFrame,
-        required_columns: set[str],
-        sheet_name: str,
-    ) -> None:
-        actual_columns = set(dataframe.columns)
+    def _clean(value) -> str:
+        if value is None:
+            return ""
+        if isinstance(value, float) and value.is_integer():
+            value = int(value)
+        return str(value).strip()
 
-        missing = required_columns - actual_columns
-
-        if missing:
-            missing_text = ", ".join(sorted(missing))
-
-            raise ExcelImportError(
-                f"Sheet '{sheet_name}' is missing "
-                f"required column(s): {missing_text}"
-            )
-
-    def _import_assets(
-        self,
-        dataframe: pd.DataFrame,
-        result: ImportResult,
-    ) -> None:
-        for row_number, row in dataframe.iterrows():
-            excel_row = row_number + 2
-
-            asset_code = self._clean_required(
-                row["asset_code"]
-            )
-
-            asset_name = self._clean_required(
-                row["asset_name"]
-            )
-
-            asset_type = self._clean_required(
-                row["asset_type"]
-            )
-
-            if not asset_code:
-                raise ExcelImportError(
-                    f"Assets row {excel_row}: "
-                    "asset_code is required."
-                )
-
-            if not asset_name:
-                raise ExcelImportError(
-                    f"Assets row {excel_row}: "
-                    "asset_name is required."
-                )
-
-            if not asset_type:
-                raise ExcelImportError(
-                    f"Assets row {excel_row}: "
-                    "asset_type is required."
-                )
-
-            existing = self.db.scalar(
-                select(Asset).where(
-                    Asset.asset_code == asset_code
-                )
-            )
-
-            values = {
-                "asset_name": asset_name,
-                "asset_type": asset_type,
-                "ip": self._clean_optional(row["ip"]),
-                "mac": self._clean_optional(row["mac"]),
-                "hostname": self._clean_optional(
-                    row["hostname"]
-                ),
-                "vendor": self._clean_optional(
-                    row["vendor"]
-                ),
-                "product": self._clean_optional(
-                    row["product"]
-                ),
+    def _read_sheet(self, sheet) -> tuple[set[str], list[tuple[int, dict]]]:
+        headers: list[str] | None = None
+        rows: list[tuple[int, dict]] = []
+        for row_number, values in enumerate(sheet.iter_rows(values_only=True), start=1):
+            if values is None or all(v in (None, "") for v in values):
+                continue
+            if headers is None:
+                headers = [self._normalize_header(v) if v is not None else "" for v in values]
+                continue
+            row = {
+                header: self._clean(values[index])
+                for index, header in enumerate(headers)
+                if header and index < len(values)
             }
+            rows.append((row_number, row))
+        return set(headers or []), rows
 
-            if existing:
-                for field, value in values.items():
-                    setattr(existing, field, value)
+    def _load_existing(self) -> None:
+        for asset in self.db.scalars(select(Asset)):
+            self._by_code[asset.asset_code] = asset
+            if asset.ip:
+                self._by_ip[asset.ip] = asset
+        self._next_number = AssetService.max_code_number(self.db)
+        existing = self.db.execute(
+            select(
+                Communication.source_asset_id,
+                Communication.destination_asset_id,
+                Communication.protocol,
+                Communication.source_port,
+                Communication.destination_port,
+            )
+        ).all()
+        self._existing_keys = {self._key(*row) for row in existing}
 
-                result.assets_updated += 1
+    @staticmethod
+    def _key(source_id, destination_id, protocol, source_port, destination_port) -> tuple:
+        return (source_id, destination_id, (protocol or "").lower(), source_port or "", destination_port or "")
 
-            else:
-                asset = Asset(
-                    asset_code=asset_code,
-                    **values,
-                )
+    # ---------- normalización ----------
 
-                self.db.add(asset)
+    @staticmethod
+    def _parse_ip(value: str) -> tuple[str | None, bool]:
+        """Devuelve (ip_normalizada, es_valida)."""
+        if not value:
+            return None, True
+        try:
+            return str(ipaddress.ip_address(value)), True
+        except ValueError:
+            return None, False
 
-                result.assets_created += 1
+    @staticmethod
+    def _parse_vlan(value: str) -> int | None:
+        match = re.search(r"\d+", value or "")
+        if match and 1 <= int(match.group()) <= 4094:
+            return int(match.group())
+        return None
 
+    @staticmethod
+    def _parse_mac(value: str) -> str | None:
+        value = (value or "").lower().replace("-", ":")
+        return value if MAC_PATTERN.match(value) else None
+
+    def _asset_values(self, row: dict, prefixes: tuple[str, ...]) -> dict:
+        def pick(*names):
+            for prefix in prefixes:
+                for name in names:
+                    if row.get(prefix + name):
+                        return row[prefix + name]
+            return ""
+
+        values = {name: pick(name) for name in ASSET_FIELDS}
+        values["asset_name"] = values["asset_name"] or pick("name")
+        values["asset_type"] = values["asset_type"] or pick("type")
+        values["mac"] = self._parse_mac(values["mac"])
+        values["vlan"] = self._parse_vlan(values["vlan"])
+        return {key: (value if value != "" else None) for key, value in values.items()}
+
+    # ---------- activos ----------
+
+    def _create_asset(self, ip: str | None, values: dict, code: str | None = None) -> Asset:
+        if not code or code in self._by_code:
+            self._next_number += 1
+            code = AssetService.format_code(self._next_number)
+        else:
+            self._next_number = max(self._next_number, AssetService.code_number(code))
+
+        values = dict(values)
+        values["asset_name"] = values.get("asset_name") or ip or code
+        values["asset_type"] = values.get("asset_type") or "unknown"
+
+        asset = Asset(asset_code=code, ip=ip, **values)
+        self.db.add(asset)
         self.db.flush()
 
-    def _import_communications(
-        self,
-        dataframe: pd.DataFrame,
-        result: ImportResult,
-    ) -> None:
-        assets = self._load_assets_by_code()
+        self._by_code[code] = asset
+        if ip:
+            self._by_ip[ip] = asset
+        self._created_ids.add(asset.id)
+        self.result.assets_created += 1
+        return asset
 
-        for row_number, row in dataframe.iterrows():
-            excel_row = row_number + 2
+    def _fill(self, asset: Asset, values: dict, overwrite: bool = False) -> None:
+        changed = False
+        for name, value in values.items():
+            if value is None:
+                continue
+            current = getattr(asset, name)
+            # Un nombre igual a la IP se considera "sin nombre"
+            is_empty = current in (None, "") or (name == "asset_name" and current == asset.ip)
+            if (overwrite or is_empty) and current != value:
+                setattr(asset, name, value)
+                changed = True
+        if changed and asset.id not in self._created_ids:
+            self.result.assets_updated += 1
 
-            source_asset_code = self._clean_required(
-                row["source_asset"]
-            )
+    def _import_assets(self, title: str, rows: list[tuple[int, dict]]) -> None:
+        for row_number, row in rows:
+            ip, valid = self._parse_ip(row.get("ip", ""))
+            code = row.get("asset_code") or None
+            if not valid:
+                self.result.rows_skipped += 1
+                self.result.add_error(f"{title} fila {row_number}: IP inválida '{row.get('ip')}'.")
+                continue
+            if not ip and not code:
+                self.result.rows_skipped += 1
+                self.result.add_error(f"{title} fila {row_number}: sin IP ni asset_code.")
+                continue
 
-            destination_asset_code = self._clean_required(
-                row["destination_asset"]
-            )
-
-            source = self._clean_required(
-                row["source"]
-            )
-
-            destination = self._clean_required(
-                row["destination"]
-            )
-
-            protocol = self._clean_required(
-                row["protocol"]
-            )
-
-            if not source_asset_code:
-                raise ExcelImportError(
-                    f"Communications row {excel_row}: "
-                    "source_asset is required."
-                )
-
-            if not destination_asset_code:
-                raise ExcelImportError(
-                    f"Communications row {excel_row}: "
-                    "destination_asset is required."
-                )
-
-            if not source:
-                raise ExcelImportError(
-                    f"Communications row {excel_row}: "
-                    "source is required."
-                )
-
-            if not destination:
-                raise ExcelImportError(
-                    f"Communications row {excel_row}: "
-                    "destination is required."
-                )
-
-            if not protocol:
-                raise ExcelImportError(
-                    f"Communications row {excel_row}: "
-                    "protocol is required."
-                )
-
-            source_asset = assets.get(source_asset_code)
-
-            destination_asset = assets.get(
-                destination_asset_code
-            )
-
-            if source_asset is None:
-                raise ExcelImportError(
-                    f"Communications row {excel_row}: "
-                    f"source asset '{source_asset_code}' "
-                    "does not exist in Assets."
-                )
-
-            if destination_asset is None:
-                raise ExcelImportError(
-                    f"Communications row {excel_row}: "
-                    f"destination asset "
-                    f"'{destination_asset_code}' "
-                    "does not exist in Assets."
-                )
-
-            source_port = self._clean_port(
-                row["source_port"]
-            )
-
-            destination_port = self._clean_port(
-                row["destination_port"]
-            )
-
-            source_name = self._clean_optional(
-                row["source_name"]
-            )
-
-            destination_name = self._clean_optional(
-                row["destination_name"]
-            )
-
-            existing = self.db.scalar(
-                select(Communication).where(
-                    Communication.source_asset_id
-                    == source_asset.id,
-                    Communication.destination_asset_id
-                    == destination_asset.id,
-                    Communication.protocol
-                    == protocol,
-                    Communication.source_port
-                    == source_port,
-                    Communication.destination_port
-                    == destination_port,
-                )
-            )
-
-            values = {
-                "source": source,
-                "destination": destination,
-                "source_name": source_name,
-                "destination_name": destination_name,
-            }
-
-            if existing:
-                for field, value in values.items():
-                    setattr(existing, field, value)
-
-                result.communications_updated += 1
-
+            values = self._asset_values(row, ("",))
+            asset = (self._by_code.get(code) if code else None) or (self._by_ip.get(ip) if ip else None)
+            if asset is None:
+                self._create_asset(ip, values, code)
             else:
-                communication = Communication(
-                    source_asset_id=source_asset.id,
-                    destination_asset_id=destination_asset.id,
+                self._fill(asset, values)
+
+    # ---------- comunicaciones ----------
+
+    def _resolve(self, row: dict, side: str, title: str, row_number: int) -> Asset | None:
+        label = "origen" if side == "source" else "destino"
+        ip, valid = self._parse_ip(row.get(side, ""))
+        if not valid:
+            self.result.add_error(f"{title} fila {row_number}: IP de {label} inválida '{row.get(side)}'.")
+            return None
+
+        values = self._asset_values(row, SIDE_PREFIXES[side])
+        code = row.get(f"{side}_asset") or None
+        asset = self._by_ip.get(ip) if ip else None
+        if asset is None and code:
+            asset = self._by_code.get(code)
+
+        if asset is None:
+            if not ip:
+                self.result.add_error(f"{title} fila {row_number}: el {label} no tiene IP ni un asset_code conocido.")
+                return None
+            asset = self._create_asset(ip, values)
+            if side == "destination":
+                # Los datos 'to_*' de muchos exports son copia de 'from_*';
+                # si luego aparece como origen, se corrigen con sus propios datos.
+                self._provisional_ids.add(asset.id)
+            return asset
+
+        if side == "source" and asset.id in self._provisional_ids:
+            self._fill(asset, values, overwrite=True)
+            self._provisional_ids.discard(asset.id)
+        else:
+            self._fill(asset, values)
+        return asset
+
+    def _import_communications(self, title: str, rows: list[tuple[int, dict]]) -> None:
+        for row_number, row in rows:
+            protocol = row.get("protocol", "").lower()
+            if not protocol:
+                self.result.rows_skipped += 1
+                self.result.add_error(f"{title} fila {row_number}: falta el protocolo.")
+                continue
+
+            source = self._resolve(row, "source", title, row_number)
+            destination = self._resolve(row, "destination", title, row_number)
+            if source is None or destination is None:
+                self.result.rows_skipped += 1
+                continue
+            if source.id == destination.id:
+                self.result.rows_skipped += 1
+                self.result.add_error(f"{title} fila {row_number}: origen y destino son el mismo activo.")
+                continue
+
+            source_port = row.get("source_port", "")
+            destination_port = row.get("destination_port", "")
+            key = self._key(source.id, destination.id, protocol, source_port, destination_port)
+            if key in self._existing_keys:
+                self.result.communications_skipped += 1
+                continue
+
+            self.db.add(
+                Communication(
+                    source_asset_id=source.id,
+                    destination_asset_id=destination.id,
                     protocol=protocol,
                     source_port=source_port,
                     destination_port=destination_port,
-                    **values,
+                    description=row.get("description") or None,
                 )
-
-                self.db.add(communication)
-
-                result.communications_created += 1
-
-        self.db.flush()
-
-    def _load_assets_by_code(self) -> dict[str, Asset]:
-        assets = self.db.scalars(
-            select(Asset)
-        ).all()
-
-        return {
-            asset.asset_code: asset
-            for asset in assets
-        }
-
-    @staticmethod
-    def _clean_required(value) -> str:
-        if pd.isna(value):
-            return ""
-
-        value = str(value).strip()
-
-        if not value:
-            return ""
-
-        return value
-
-    @staticmethod
-    def _clean_optional(value) -> str | None:
-        if pd.isna(value):
-            return None
-
-        value = str(value).strip()
-
-        if not value:
-            return None
-
-        return value
-
-    @staticmethod
-    def _clean_port(value) -> str | None:
-        """
-        Keeps the original port representation.
-
-        Examples:
-            tcp/62917
-            tcp/62917, tcp/53351, tcp/54760
-            tcp/9100
-            None
-        """
-
-        if pd.isna(value):
-            return None
-
-        value = str(value).strip()
-
-        if not value:
-            return None
-
-        return value
+            )
+            self._existing_keys.add(key)
+            self.result.communications_created += 1
