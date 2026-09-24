@@ -7,16 +7,10 @@ class CommunicationBase(BaseModel):
     source_asset_id: int
     destination_asset_id: int
 
-    source: str
-    destination: str
-
     protocol: str
 
     source_port: str | None = None
     destination_port: str | None = None
-
-    source_name: str | None = None
-    destination_name: str | None = None
 
 
 class CommunicationCreate(CommunicationBase):
@@ -27,20 +21,22 @@ class CommunicationUpdate(BaseModel):
     source_asset_id: int | None = None
     destination_asset_id: int | None = None
 
-    source: str | None = None
-    destination: str | None = None
-
     protocol: str | None = None
 
     source_port: str | None = None
     destination_port: str | None = None
 
-    source_name: str | None = None
-    destination_name: str | None = None
-
 
 class CommunicationResponse(CommunicationBase):
     id: int
+
+    source_ip: str | None = None
+    destination_ip: str | None = None
+
+    source_name: str | None = None
+    destination_name: str | None = None
+
+    description: str | None = None
 
     created_at: datetime
     updated_at: datetime
