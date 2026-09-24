@@ -391,9 +391,13 @@ function MapperPage() {
           />
       </Modal>
       )}
+{dialog?.kind === "import" && (
+        <Modal title="Resultado de la importación" onClose={closeDialog} width={560}>
+          <ImportResult result={dialog.result} onClose={closeDialog} />
+        </Modal>
+      )}
     </div>
   );
 }
 
 export default MapperPage;
-
