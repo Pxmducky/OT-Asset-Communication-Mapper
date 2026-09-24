@@ -4,9 +4,7 @@ from sqlalchemy import (
     DateTime,
     ForeignKey,
     Index,
-    Integer,
     String,
-    Text,
     UniqueConstraint,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -47,13 +45,13 @@ class Communication(Base):
         nullable=False,
     )
 
-    source_port: Mapped[int | None] = mapped_column(
-        Integer,
+    source_port: Mapped[str | None] = mapped_column(
+        String(1000),
         nullable=True,
     )
 
-    destination_port: Mapped[int | None] = mapped_column(
-        Integer,
+    destination_port: Mapped[str | None] = mapped_column(
+        String(1000),
         nullable=True,
     )
 
