@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<nmaprun scanner="nmap" args="nmap -sS -sV -O -oX -" start="1700000000" version="7.94">
+  <host starttime="1700000000" endtime="1700000050">
+    <status state="up" reason="arp-response"/>
+    <address addr="172.16.99.10" addrtype="ipv4"/>
+    <address addr="00:1B:1B:C3:90:B7" addrtype="mac" vendor="Siemens"/>
+    <hostnames><hostname name="plc-linea3-01" type="PTR"/></hostnames>
+    <ports>
+      <port protocol="tcp" portid="102">
+        <state state="open" reason="syn-ack"/>
+        <service name="iso-tsap" product="Siemens S7 PLC"/>
+        <script id="s7-info" output="Module: 6ES7 516-3AN00-0AB0; Basic Firmware: V2.8"/>
+      </port>
+      <port protocol="tcp" portid="80">
+        <state state="open" reason="syn-ack"/>
+        <service name="http" product="Siemens WebServer"/>
+      </port>
+    </ports>
+    <os><osmatch name="Siemens S7 PLC" accuracy="95"/></os>
+  </host>
+</nmaprun>

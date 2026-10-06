@@ -35,6 +35,13 @@ class Asset(Base):
     building: Mapped[str | None] = mapped_column(String(150), nullable=True)
     production_line: Mapped[str | None] = mapped_column(String(150), nullable=True)
 
+    # Descubrimiento automático (escaneos nmap) — Fase 1
+    status: Mapped[str] = mapped_column(String(20), nullable=False, default="confirmed")  # confirmed | tentative
+    confidence: Mapped[int | None] = mapped_column(Integer, nullable=True)  # 0-100; null en alta manual/Excel
+    discovery_source: Mapped[str] = mapped_column(String(20), nullable=False, default="manual")  # manual | excel | scan
+    last_seen: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    os: Mapped[str | None] = mapped_column(String(255), nullable=True)
+
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=utc_now, onupdate=utc_now, nullable=False
@@ -51,6 +58,12 @@ class Asset(Base):
         "Communication",
         foreign_keys="Communication.destination_asset_id",
         back_populates="destination_asset",
+        cascade="all, delete-orphan",
+    )
+
+    services = relationship(
+        "AssetService",
+        back_populates="asset",
         cascade="all, delete-orphan",
     )
 

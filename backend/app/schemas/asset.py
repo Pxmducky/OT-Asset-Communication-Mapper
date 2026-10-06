@@ -106,6 +106,12 @@ class AssetResponse(BaseModel):
     building: str | None = None
     production_line: str | None = None
 
+    os: str | None = None
+    status: str | None = None
+    confidence: int | None = None
+    discovery_source: str | None = None
+    last_seen: datetime | None = None
+
     created_at: datetime
     updated_at: datetime
 

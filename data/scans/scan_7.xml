@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE nmaprun>
+<?xml-stylesheet href="file:///usr/share/nmap/nmap.xsl" type="text/xsl"?>
+<!-- Nmap 7.99 scan initiated Tue Oct  6 14:16:15 2026 as: /usr/lib/nmap/nmap -&#45;privileged -sS -sV -O -T3 -&#45;max-rate 80 -p 80,443,135,139,445,3389,1433,3306 -&#45;script smb-os-discovery,http-title -oX - 172.16.99.9/32 -->
+<nmaprun scanner="nmap" args="/usr/lib/nmap/nmap -&#45;privileged -sS -sV -O -T3 -&#45;max-rate 80 -p 80,443,135,139,445,3389,1433,3306 -&#45;script smb-os-discovery,http-title -oX - 172.16.99.9/32" start="1791317775" startstr="Tue Oct  6 14:16:15 2026" version="7.99" xmloutputversion="1.05">
+<scaninfo type="syn" protocol="tcp" numservices="8" services="80,135,139,443,445,1433,3306,3389"/>
+<verbose level="0"/>
+<debugging level="0"/>
+<hosthint><status state="up" reason="unknown-response" reason_ttl="0"/>
+<address addr="172.16.99.9" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+</hosthint>
+<host starttime="1791317775" endtime="1791317825"><status state="up" reason="reset" reason_ttl="255"/>
+<address addr="172.16.99.9" addrtype="ipv4"/>
+<hostnames>
+<hostname name="MESDASPMMSRV05.bocar.com" type="PTR"/>
+</hostnames>
+<ports><port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="http" product="Microsoft HTTPAPI httpd" version="2.0" extrainfo="SSDP/UPnP" ostype="Windows" method="probed" conf="10"><cpe>cpe:/o:microsoft:windows</cpe></service><script id="http-server-header" output="Microsoft-HTTPAPI/2.0"><elem>Microsoft-HTTPAPI/2.0</elem>
+</script></port>
+<port protocol="tcp" portid="135"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="msrpc" product="Microsoft Windows RPC" ostype="Windows" method="probed" conf="10"><cpe>cpe:/o:microsoft:windows</cpe></service></port>
+<port protocol="tcp" portid="139"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="netbios-ssn" product="Microsoft Windows netbios-ssn" ostype="Windows" method="probed" conf="10"><cpe>cpe:/o:microsoft:windows</cpe></service></port>
+<port protocol="tcp" portid="443"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="https" method="table" conf="3"/></port>
+<port protocol="tcp" portid="445"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="microsoft-ds" method="table" conf="3"/></port>
+<port protocol="tcp" portid="1433"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="ms-sql-s" method="table" conf="3"/></port>
+<port protocol="tcp" portid="3306"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="mysql" method="table" conf="3"/></port>
+<port protocol="tcp" portid="3389"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="ms-wbt-server" method="table" conf="3"/></port>
+</ports>
+<os><portused state="open" proto="tcp" portid="80"/>
+<osmatch name="Oracle Virtualbox Slirp NAT bridge" accuracy="98" line="99982">
+<osclass type="bridge" vendor="Oracle" osfamily="Virtualbox" accuracy="98"><cpe>cpe:/o:oracle:virtualbox</cpe></osclass>
+<osclass type="bridge" vendor="Slirp" osfamily="Slirp" accuracy="98"><cpe>cpe:/a:danny_gasparovski:slirp</cpe></osclass>
+</osmatch>
+<osmatch name="AT&amp;T BGW210 voice gateway" accuracy="95" line="10195">
+<osclass type="VoIP adapter" vendor="AT&amp;T" osfamily="embedded" accuracy="95"/>
+</osmatch>
+<osmatch name="QEMU user mode network gateway" accuracy="94" line="101823">
+<osclass type="general purpose" vendor="QEMU" osfamily="QEMU" accuracy="94"><cpe>cpe:/a:qemu:qemu</cpe></osclass>
+</osmatch>
+</os>
+<tcpsequence index="17" difficulty="Good luck!" values="1DCEDC01,1DCFD601,1DD0D001,1DD1CA01,1DD3BE01,1DD4B801"/>
+<ipidsequence class="Incremental" values="48C0,48C1,48C2,48C3,48C4,48C5"/>
+<tcptssequence class="none returned (unsupported)"/>
+<times srtt="5387" rttvar="6738" to="100000"/>
+</host>
+<runstats><finished time="1791317825" timestr="Tue Oct  6 14:17:05 2026" summary="Nmap done at Tue Oct  6 14:17:05 2026; 1 IP address (1 host up) scanned in 50.12 seconds" elapsed="50.12" exit="success"/><hosts up="1" down="0" total="1"/>
+</runstats>
+</nmaprun>
