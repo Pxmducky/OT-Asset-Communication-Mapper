@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE nmaprun>
+<?xml-stylesheet href="file:///usr/share/nmap/nmap.xsl" type="text/xsl"?>
+<!-- Nmap 7.99 scan initiated Wed Oct  7 08:31:51 2026 as: /usr/lib/nmap/nmap -&#45;privileged -sS -sV -O -T3 -&#45;max-rate 100 -p 21,22,23,80,102,135,139,161,443,445,502,515,554,631,1433,2222,3306,3389,4840,5900,8000,9100,44818,37777 -&#45;script banner,http-title,smb-os-discovery,s7-info,modbus-discover,enip-info,snmp-info -oX - 172.16.58.13/32 -->
+<nmaprun scanner="nmap" args="/usr/lib/nmap/nmap -&#45;privileged -sS -sV -O -T3 -&#45;max-rate 100 -p 21,22,23,80,102,135,139,161,443,445,502,515,554,631,1433,2222,3306,3389,4840,5900,8000,9100,44818,37777 -&#45;script banner,http-title,smb-os-discovery,s7-info,modbus-discover,enip-info,snmp-info -oX - 172.16.58.13/32" start="1791383511" startstr="Wed Oct  7 08:31:51 2026" version="7.99" xmloutputversion="1.05">
+<scaninfo type="syn" protocol="tcp" numservices="24" services="21-23,80,102,135,139,161,443,445,502,515,554,631,1433,2222,3306,3389,4840,5900,8000,9100,37777,44818"/>
+<verbose level="0"/>
+<debugging level="0"/>
+<hosthint><status state="up" reason="unknown-response" reason_ttl="0"/>
+<address addr="172.16.58.13" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+</hosthint>
+<host starttime="1791383512" endtime="1791383592"><status state="up" reason="reset" reason_ttl="255"/>
+<address addr="172.16.58.13" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="21"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="ftp" method="table" conf="3"/></port>
+<port protocol="tcp" portid="22"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="23"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="telnet" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="http" method="table" conf="3"/></port>
+<port protocol="tcp" portid="102"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="iso-tsap" product="Siemens S7 PLC" devicetype="specialized" method="probed" conf="10"/><script id="s7-info" output="&#xa;  Module: 6ES7 513-1FL02-0AB0 &#xa;  Basic Hardware: 6ES7 513-1FL02-0AB0 &#xa;  Version: 2.9.4&#xa;  System Name: S7-1500/ET200MP-Station&#xa;  Module Type: PLC_1&#xa;  Serial Number: S C-P7B897462022&#xa;  Plant Identification:                                 &#xa;  Copyright: Original Siemens Equipment"><elem key="Module">6ES7 513-1FL02-0AB0 </elem>
+<elem key="Basic Hardware">6ES7 513-1FL02-0AB0 </elem>
+<elem key="Version">2.9.4</elem>
+<elem key="System Name">S7-1500/ET200MP-Station</elem>
+<elem key="Module Type">PLC_1</elem>
+<elem key="Serial Number">S C-P7B897462022</elem>
+<elem key="Plant Identification">                                </elem>
+<elem key="Copyright">Original Siemens Equipment</elem>
+</script></port>
+<port protocol="tcp" portid="135"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="msrpc" method="table" conf="3"/></port>
+<port protocol="tcp" portid="139"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="netbios-ssn" method="table" conf="3"/></port>
+<port protocol="tcp" portid="161"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="snmp" method="table" conf="3"/></port>
+<port protocol="tcp" portid="443"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="https" product="mGuard" servicefp="SF-Port443-TCP:V=7.99%T=SSL%I=7%D=10/7%Time=6AC657E6%P=x86_64-pc-linux-gnu%r(GetRequest,125,&quot;HTTP/1\.1\x20400\x20Bad\x20Request\r\nServer:\x20mGuard\r\nDate:\x20Tue,\x2018\x20Jan\x202000\x2023:19:02\x20UTC\r\nX-Frame-Options:\x20DENY\r\nContent-Language:\x20en\r\nSet-Cookie:\x20id=;\x20Secure;\x20HttpOnly;\x20Max-Age=0\r\nCache-Control:\x20no-store\r\nConnection:\x20close\r\nContent-Type:\x20text/plain;\x20charset=utf-8\r\nContent-Length:\x2016\r\n\r\n400\x20Bad\x20Request\n&quot;)%r(HTTPOptions,125,&quot;HTTP/1\.1\x20400\x20Bad\x20Request\r\nServer:\x20mGuard\r\nDate:\x20Tue,\x2018\x20Jan\x202000\x2023:19:02\x20UTC\r\nX-Frame-Options:\x20DENY\r\nContent-Language:\x20en\r\nSet-Cookie:\x20id=;\x20Secure;\x20HttpOnly;\x20Max-Age=0\r\nCache-Control:\x20no-store\r\nConnection:\x20close\r\nContent-Type:\x20text/plain;\x20charset=utf-8\r\nContent-Length:\x2016\r\n\r\n400\x20Bad\x20Request\n&quot;)%r(FourOhFourRequest,125,&quot;HTTP/1\.1\x20400\x20Bad\x20Request\r\nServer:\x20mGuard\r\nDate:\x20Tue,\x2018\x20Jan\x202000\x2023:19:02\x20UTC\r\nX-Frame-Options:\x20DENY\r\nContent-Language:\x20en\r\nSet-Cookie:\x20id=;\x20Secure;\x20HttpOnly;\x20Max-Age=0\r\nCache-Control:\x20no-store\r\nConnection:\x20close\r\nContent-Type:\x20text/plain;\x20charset=utf-8\r\nContent-Length:\x2016\r\n\r\n400\x20Bad\x20Request\n&quot;)%r(GenericLines,14B,&quot;HTTP/1\.1\x20405\x20Method\x20Not\x20Allowed\r\nServer:\x20mGuard\r\nDate:\x20Tue,\x2018\x20Jan\x202000\x2023:19:03\x20UTC\r\nX-Frame-Options:\x20DENY\r\nContent-Language:\x20en\r\nSet-Cookie:\x20id=;\x20Secure;\x20HttpOnly;\x20Max-Age=0\r\nCache-Control:\x20no-store\r\nConnection:\x20close\r\nContent-Type:\x20text/plain;\x20charset=utf-8\r\nAllow:\x20GET,\x20HEAD,\x20POST\r\nContent-Length:\x2023\r\n\r\n405\x20Method\x20Not\x20Allowed\n&quot;)%r(RTSPRequest,125,&quot;HTTP/1\.1\x20400\x20Bad\x20Request\r\nServer:\x20mGuard\r\nDate:\x20Tue,\x2018\x20Jan\x202000\x2023:19:03\x20UTC\r\nX-Frame-Options:\x20DENY\r\nContent-Language:\x20en\r\nSet-Cookie:\x20id=;\x20Secure;\x20HttpOnly;\x20Max-Age=0\r\nCache-Control:\x20no-store\r\nConnection:\x20close\r\nContent-Type:\x20text/plain;\x20charset=utf-8\r\nContent-Length:\x2016\r\n\r\n400\x20Bad\x20Request\n&quot;);" tunnel="ssl" method="probed" conf="10"/><script id="fingerprint-strings" output="&#xa;  FourOhFourRequest, GetRequest, HTTPOptions: &#xa;    HTTP/1.1 400 Bad Request&#xa;    Server: mGuard&#xa;    Date: Tue, 18 Jan 2000 23:19:02 UTC&#xa;    X-Frame-Options: DENY&#xa;    Content-Language: en&#xa;    Set-Cookie: id=; Secure; HttpOnly; Max-Age=0&#xa;    Cache-Control: no-store&#xa;    Connection: close&#xa;    Content-Type: text/plain; charset=utf-8&#xa;    Content-Length: 16&#xa;    Request&#xa;  GenericLines: &#xa;    HTTP/1.1 405 Method Not Allowed&#xa;    Server: mGuard&#xa;    Date: Tue, 18 Jan 2000 23:19:03 UTC&#xa;    X-Frame-Options: DENY&#xa;    Content-Language: en&#xa;    Set-Cookie: id=; Secure; HttpOnly; Max-Age=0&#xa;    Cache-Control: no-store&#xa;    Connection: close&#xa;    Content-Type: text/plain; charset=utf-8&#xa;    Allow: GET, HEAD, POST&#xa;    Content-Length: 23&#xa;    Method Not Allowed&#xa;  RTSPRequest: &#xa;    HTTP/1.1 400 Bad Request&#xa;    Server: mGuard&#xa;    Date: Tue, 18 Jan 2000 23:19:03 UTC&#xa;    X-Frame-Options: DENY&#xa;    Content-Language: en&#xa;    Set-Cookie: id=; Secure; HttpOnly; Max-Age=0&#xa;    Cache-Control: no-store&#xa;    Connection: close&#xa;    Content-Type: text/plain; charset=utf-8&#xa;    Content-Length: 16&#xa;    Request"><elem key="FourOhFourRequest, GetRequest, HTTPOptions">&#xa;    HTTP/1.1 400 Bad Request&#xa;    Server: mGuard&#xa;    Date: Tue, 18 Jan 2000 23:19:02 UTC&#xa;    X-Frame-Options: DENY&#xa;    Content-Language: en&#xa;    Set-Cookie: id=; Secure; HttpOnly; Max-Age=0&#xa;    Cache-Control: no-store&#xa;    Connection: close&#xa;    Content-Type: text/plain; charset=utf-8&#xa;    Content-Length: 16&#xa;    Request</elem>
+<elem key="GenericLines">&#xa;    HTTP/1.1 405 Method Not Allowed&#xa;    Server: mGuard&#xa;    Date: Tue, 18 Jan 2000 23:19:03 UTC&#xa;    X-Frame-Options: DENY&#xa;    Content-Language: en&#xa;    Set-Cookie: id=; Secure; HttpOnly; Max-Age=0&#xa;    Cache-Control: no-store&#xa;    Connection: close&#xa;    Content-Type: text/plain; charset=utf-8&#xa;    Allow: GET, HEAD, POST&#xa;    Content-Length: 23&#xa;    Method Not Allowed</elem>
+<elem key="RTSPRequest">&#xa;    HTTP/1.1 400 Bad Request&#xa;    Server: mGuard&#xa;    Date: Tue, 18 Jan 2000 23:19:03 UTC&#xa;    X-Frame-Options: DENY&#xa;    Content-Language: en&#xa;    Set-Cookie: id=; Secure; HttpOnly; Max-Age=0&#xa;    Cache-Control: no-store&#xa;    Connection: close&#xa;    Content-Type: text/plain; charset=utf-8&#xa;    Content-Length: 16&#xa;    Request</elem>
+</script><script id="http-server-header" output="mGuard"><elem>mGuard</elem>
+</script></port>
+<port protocol="tcp" portid="445"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="microsoft-ds" method="table" conf="3"/></port>
+<port protocol="tcp" portid="502"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="mbap" method="table" conf="3"/></port>
+<port protocol="tcp" portid="515"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="printer" method="table" conf="3"/></port>
+<port protocol="tcp" portid="554"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="rtsp" method="table" conf="3"/></port>
+<port protocol="tcp" portid="631"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="ipp" method="table" conf="3"/></port>
+<port protocol="tcp" portid="1433"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="ms-sql-s" method="table" conf="3"/></port>
+<port protocol="tcp" portid="2222"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="EtherNetIP-1" method="table" conf="3"/></port>
+<port protocol="tcp" portid="3306"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="mysql" method="table" conf="3"/></port>
+<port protocol="tcp" portid="3389"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="ms-wbt-server" method="table" conf="3"/></port>
+<port protocol="tcp" portid="4840"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="opcua-tcp" method="table" conf="3"/></port>
+<port protocol="tcp" portid="5900"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="vnc" method="table" conf="3"/></port>
+<port protocol="tcp" portid="8000"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="http-alt" method="table" conf="3"/></port>
+<port protocol="tcp" portid="9100"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="jetdirect" method="table" conf="3"/></port>
+<port protocol="tcp" portid="37777"><state state="filtered" reason="no-response" reason_ttl="0"/></port>
+<port protocol="tcp" portid="44818"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="EtherNetIP-2" method="table" conf="3"/></port>
+</ports>
+<os><portused state="open" proto="tcp" portid="102"/>
+<osmatch name="Oracle Virtualbox Slirp NAT bridge" accuracy="98" line="99982">
+<osclass type="bridge" vendor="Oracle" osfamily="Virtualbox" accuracy="98"><cpe>cpe:/o:oracle:virtualbox</cpe></osclass>
+<osclass type="bridge" vendor="Slirp" osfamily="Slirp" accuracy="98"><cpe>cpe:/a:danny_gasparovski:slirp</cpe></osclass>
+</osmatch>
+<osmatch name="AT&amp;T BGW210 voice gateway" accuracy="95" line="10195">
+<osclass type="VoIP adapter" vendor="AT&amp;T" osfamily="embedded" accuracy="95"/>
+</osmatch>
+<osmatch name="QEMU user mode network gateway" accuracy="94" line="101823">
+<osclass type="general purpose" vendor="QEMU" osfamily="QEMU" accuracy="94"><cpe>cpe:/a:qemu:qemu</cpe></osclass>
+</osmatch>
+</os>
+<tcpsequence index="17" difficulty="Good luck!" values="3E734E01,3E744801,3E754201,3E763C01,3E783001,3E792A01"/>
+<ipidsequence class="Incremental" values="C5C0,C5C1,C5C2,C5C3,C5C4,C5C5"/>
+<tcptssequence class="none returned (unsupported)"/>
+<times srtt="5635" rttvar="6679" to="100000"/>
+</host>
+<runstats><finished time="1791383592" timestr="Wed Oct  7 08:33:12 2026" summary="Nmap done at Wed Oct  7 08:33:12 2026; 1 IP address (1 host up) scanned in 80.38 seconds" elapsed="80.38" exit="success"/><hosts up="1" down="0" total="1"/>
+</runstats>
+</nmaprun>

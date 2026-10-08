@@ -2,7 +2,19 @@ import { useState } from "react";
 
 import AssetIcon from "./AssetIcon";
 
-function AssetList({ groups, total, selectedId, search, onSearchChange, onSelect, onCreate, commCounts }) {
+function AssetList({
+  groups,
+  total,
+  selectedId,
+  search,
+  onSearchChange,
+  onSelect,
+  onCreate,
+  commCounts,
+  types,
+  typeFilter,
+  onTypeFilterChange,
+}) {
   const [collapsed, setCollapsed] = useState(() => new Set());
 
   function toggle(key) {
@@ -20,7 +32,7 @@ function AssetList({ groups, total, selectedId, search, onSearchChange, onSelect
     <div className="asset-list">
       <div className="sidebar-header">
         <h2>Activos</h2>
-        <span>{search ? `${shown} de ${total}` : total}</span>
+        <span>{search || typeFilter ? `${shown} de ${total}` : total}</span>
       </div>
 
       <button type="button" className="button primary full" onClick={onCreate}>
@@ -34,6 +46,19 @@ function AssetList({ groups, total, selectedId, search, onSearchChange, onSelect
         value={search}
         onChange={(event) => onSearchChange(event.target.value)}
       />
+
+      <select
+        className="type-filter"
+        value={typeFilter}
+        onChange={(event) => onTypeFilterChange(event.target.value)}
+      >
+        <option value="">Todos los tipos</option>
+        {(types ?? []).map((t) => (
+          <option key={t.value} value={t.value}>
+            {t.label}
+          </option>
+        ))}
+      </select>
 
       <div className="asset-items">
         {groups.map(([key, members]) => (

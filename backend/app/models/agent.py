@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import DateTime, ForeignKey, Index, String, Text, UniqueConstraint
+from sqlalchemy import DateTime, ForeignKey, Index, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database.database import Base
@@ -49,7 +49,10 @@ class AllowedNetwork(Base):
 
     cidr: Mapped[str] = mapped_column(String(50), nullable=False)  # p. ej. 192.168.10.0/24
     description: Mapped[str | None] = mapped_column(String(255), nullable=True)
-
+    plant: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    building: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    production_line: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    vlan: Mapped[int | None] = mapped_column(Integer, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, nullable=False)
 
     agent = relationship("Agent", back_populates="allowed_networks")

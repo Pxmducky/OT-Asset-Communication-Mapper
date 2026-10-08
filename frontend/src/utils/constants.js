@@ -14,6 +14,15 @@ export const ASSET_TYPES = [
     { value: "WAP", label: "Access point" },
     { value: "printer_scanner", label: "Impresora / Escáner" },
     { value: "IT_device", label: "Dispositivo IT" },
+    { value: "mes", label: "MES" },
+    { value: "cnc", label: "CNC" },
+    { value: "camera", label: "Cámara IP" },
+    { value: "robot", label: "Robot" },
+    { value: "instrument", label: "Instrumento" },
+    { value: "scada", label: "SCADA / OPC" },
+    { value: "ups", label: "UPS / PDU" },
+    { value: "ewon", label: "Ewon" },
+    { value: "mguard", label: "mGuard" },
     { value: "unknown", label: "Desconocido" },
   ];
   
@@ -33,6 +42,15 @@ export const ASSET_TYPES = [
     WAP: "#06b6d4",
     printer_scanner: "#94a3b8",
     IT_device: "#64748b",
+    mes: "#0ea5e9",
+    cnc: "#f59e0b",
+    camera: "#8b5cf6",
+    robot: "#ec4899",
+    instrument: "#10b981",
+    scada: "#0284c7",
+    ups: "#84cc16",
+    ewon: "#f43f5e",
+    mguard: "#dc2626",
     unknown: "#475569",
   };
   

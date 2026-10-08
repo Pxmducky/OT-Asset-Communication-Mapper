@@ -1,30 +1,43 @@
-"""Porcentaje de confianza por host, según el tipo de escaneo pedido.
+"""Clasificación y confianza.
 
-Mide qué tan bien coincide el host con el TIPO esperado. Ignora el <osmatch>
-basura (NAT/bridge/VoIP/virtualización) y resuelve el SO desde señales fiables:
-smb-os-discovery > ostype/CPE de servicios > osmatch filtrado.
+Clave del rediseño: ya NO se puntúa contra el tipo que pidió el usuario, sino
+contra TODOS los tipos. El de mayor puntaje gana (clasifica el resultado, no el
+botón). El botón solo decide qué puertos abre nmap.
+
+Ignora el <osmatch> basura (NAT/bridge/VoIP) y resuelve el SO desde señales
+fiables: smb-os-discovery > ostype/CPE de servicios > osmatch filtrado.
 """
 from app.scanning.parser import ParsedHost
+from app.scanning.profiles import PROFILES
 
-# Familias de <osmatch> que NO son el equipo real (gateways intermedios)
 _BOGUS_OS = {"virtualbox", "slirp", "qemu", "voip adapter", "bridge", "embedded"}
 
 # Umbrales (ajustables)
-APPLY_THRESHOLD = 70   # >= : se aplica solo y queda confirmado
-REVIEW_THRESHOLD = 40  # >= : va a bandeja de revisión; por debajo, se guarda sin aplicar
+APPLY_THRESHOLD = 70    # >= : se crea y queda confirmado
+REVIEW_THRESHOLD = 40   # >= : va a revisión
+SUGGEST_THRESHOLD = 25  # >= : vale la pena recomendar un escaneo específico
 
-# Expectativas por perfil: puertos "firma", palabras de SO/fabricante y scripts esperados.
+# Perfiles que NO son un tipo de activo (son de descubrimiento), se excluyen al clasificar.
+_NON_TYPES = {"discovery", "general"}
+
 PROFILE_EXPECTATIONS: dict[str, dict] = {
-    "plc":       {"ports": {102, 502, 44818, 2222}, "os": [], "vendor": ["siemens", "rockwell", "allen", "omron", "schneider", "beckhoff", "mitsubishi"], "scripts": ["s7-info", "modbus-discover", "enip-info"], "type": "PLC"},
-    "hmi":       {"ports": {102, 502, 44818, 5900}, "os": [], "vendor": ["siemens", "rockwell", "pro-face", "omron"], "scripts": ["s7-info", "enip-info", "modbus-discover"], "type": "HMI"},
-    "printers":  {"ports": {9100, 515, 631}, "os": [], "vendor": ["hp", "zebra", "epson", "brother", "lexmark"], "scripts": ["snmp-info"], "type": "Impresora"},
-    "mes":       {"ports": {135, 139, 445, 3389}, "os": ["windows"], "vendor": [], "scripts": ["smb-os-discovery"], "type": "MES"},
-    "cnc":       {"ports": {5900, 3389, 8193}, "os": [], "vendor": ["fanuc", "siemens", "haas", "mazak"], "scripts": [], "type": "CNC"},
-    "server":    {"ports": {135, 139, 445, 3389, 22}, "os": ["windows", "linux"], "vendor": [], "scripts": ["smb-os-discovery"], "type": "Servidor"},
-    "switch":    {"ports": {161, 22, 23}, "os": [], "vendor": ["cisco", "hirschmann", "moxa", "scalance", "siemens"], "scripts": ["snmp-info"], "type": "Switch"},
-    "drive":     {"ports": {502, 44818}, "os": [], "vendor": ["sew", "danfoss", "abb", "siemens", "rockwell"], "scripts": ["modbus-discover", "enip-info"], "type": "Variador"},
-    "camera":    {"ports": {554, 37777, 8000}, "os": [], "vendor": ["hikvision", "dahua", "axis", "bosch"], "scripts": ["rtsp-methods"], "type": "Cámara IP"},
-    "discovery": {"ports": set(), "os": [], "vendor": [], "scripts": [], "type": "Desconocido"},
+    "plc":        {"ports": {102, 502, 44818, 2222}, "os": [], "vendor": ["siemens", "rockwell", "allen", "omron", "schneider", "beckhoff", "mitsubishi"], "scripts": ["s7-info", "modbus-discover", "enip-info"], "type": "controller"},
+    "hmi":        {"ports": {102, 502, 44818, 5900}, "os": [], "vendor": ["siemens", "rockwell", "pro-face", "omron"], "scripts": ["s7-info", "enip-info", "modbus-discover"], "type": "HMI"},
+    "printers":   {"ports": {9100, 515, 631}, "os": [], "vendor": ["hp", "zebra", "epson", "brother", "lexmark"], "scripts": ["snmp-info"], "type": "printer_scanner"},
+    "mes":        {"ports": {135, 139, 445, 3389}, "os": ["windows"], "vendor": [], "scripts": ["smb-os-discovery"], "type": "mes"},
+    "cnc":        {"ports": {5900, 3389, 8193}, "os": [], "vendor": ["fanuc", "siemens", "haas", "mazak"], "scripts": [], "type": "cnc"},
+    "server":     {"ports": {135, 139, 445, 3389, 22}, "os": ["windows", "linux"], "vendor": [], "scripts": ["smb-os-discovery"], "type": "server"},
+    "switch":     {"ports": {161, 22, 23}, "os": [], "vendor": ["cisco", "hirschmann", "moxa", "scalance", "siemens"], "scripts": ["snmp-info"], "type": "switch"},
+    "drive":      {"ports": {502, 44818}, "os": [], "vendor": ["sew", "danfoss", "abb", "siemens", "rockwell"], "scripts": ["modbus-discover", "enip-info"], "type": "drive"},
+    "camera":     {"ports": {554, 37777, 8000}, "os": [], "vendor": ["hikvision", "dahua", "axis", "bosch"], "scripts": ["rtsp-methods"], "type": "camera"},
+    "robot":      {"ports": {2222, 44818, 80}, "os": [], "vendor": ["fanuc", "abb", "kuka", "motoman", "yaskawa", "staubli", "kawasaki"], "scripts": ["enip-info", "http-title"], "type": "robot"},
+    "io_remote":  {"ports": {102, 502, 44818}, "os": [], "vendor": ["siemens", "beckhoff", "wago", "turck", "phoenix", "murr", "balluff"], "scripts": ["modbus-discover", "enip-info", "s7-info", "snmp-info"], "type": "IO_module"},
+    "instrument": {"ports": {502, 9100, 161}, "os": [], "vendor": ["mettler", "toledo", "cognex", "keyence", "sick", "banner", "datalogic"], "scripts": ["snmp-info"], "type": "instrument"},
+    "scada":      {"ports": {4840, 135, 1433}, "os": ["windows"], "vendor": ["kepware", "inductive", "wonderware", "aveva", "ge"], "scripts": ["smb-os-discovery"], "type": "scada"},
+    "ups":        {"ports": {161}, "os": [], "vendor": ["apc", "eaton", "schneider", "tripp", "vertiv", "cyberpower"], "scripts": ["snmp-info"], "type": "ups"},
+    "wap":        {"ports": {161, 443}, "os": [], "vendor": ["cisco", "aruba", "ubiquiti", "moxa", "siemens", "hirschmann"], "scripts": ["snmp-info"], "type": "WAP"},
+    "ewon":       {"ports": {80, 443}, "os": [], "vendor": ["ewon", "hms"], "scripts": ["http-title", "ssl-cert"], "type": "ewon"},
+    "mguard":     {"ports": {443, 22}, "os": [], "vendor": ["phoenix", "mguard", "innominate"], "scripts": ["ssl-cert", "http-title", "snmp-info"], "type": "mguard"},
 }
 
 W_UP, W_PORTS, W_IDENTITY, W_SCRIPT, W_OUI = 15, 35, 30, 20, 10
@@ -55,38 +68,31 @@ def resolve_os(host: ParsedHost) -> str | None:
     return None
 
 
-def score_host(host: ParsedHost, scan_profile: str) -> dict:
-    exp = PROFILE_EXPECTATIONS.get(scan_profile, PROFILE_EXPECTATIONS["discovery"])
+def _score_against(host: ParsedHost, profile: str) -> tuple[int, list[str]]:
+    """Puntúa un host contra UN tipo concreto."""
+    exp = PROFILE_EXPECTATIONS.get(profile)
     reasons: list[str] = []
-    score = 0
-
-    if host.up:
-        score += W_UP
-        reasons.append("host activo")
-
-    # discovery: solo liveness, nunca auto-confirma
-    if scan_profile == "discovery":
-        return {"score": min(score + 25, REVIEW_THRESHOLD + 5), "os": resolve_os(host),
-                "asset_type": exp["type"], "reasons": reasons + ["descubrimiento (sin clasificar)"]}
+    score = W_UP if host.up else 0
+    if not exp:
+        return score, reasons
 
     open_ports = host.open_ports
     blob = _text_blob(host)
 
     sig = exp["ports"]
     if sig:
-        frac = len(open_ports & sig) / len(sig)
-        score += round(W_PORTS * frac)
-        if frac:
-            reasons.append(f"puertos del tipo: {sorted(open_ports & sig)}")
+        inter = open_ports & sig
+        if inter:
+            score += round(W_PORTS * len(inter) / len(sig))
+            reasons.append(f"puertos del tipo: {sorted(inter)}")
 
     os_hit = any(k in blob for k in exp["os"])
     vendor_hit = any(k in blob for k in exp["vendor"])
     if os_hit or vendor_hit:
         score += W_IDENTITY
-        reasons.append("SO/fabricante esperado" if os_hit else "fabricante esperado")
+        reasons.append("SO/fabricante esperado")
 
-    script_hit = any(host.host_scripts.get(s) or any(p.scripts.get(s) for p in host.ports) for s in exp["scripts"])
-    if script_hit:
+    if any(host.host_scripts.get(s) or any(p.scripts.get(s) for p in host.ports) for s in exp["scripts"]):
         score += W_SCRIPT
         reasons.append("protocolo confirmado por script")
 
@@ -94,7 +100,33 @@ def score_host(host: ParsedHost, scan_profile: str) -> dict:
         score += W_OUI
         reasons.append("MAC de fabricante OT")
 
-    score = max(0, min(100, score))
-    if sig and not (open_ports & sig):
-        reasons.append("⚠ no coincide con el tipo pedido")
-    return {"score": score, "os": resolve_os(host), "asset_type": exp["type"], "reasons": reasons}
+    return max(0, min(100, score)), reasons
+
+
+def score_for_profile(host: ParsedHost, profile: str) -> int:
+    """Puntaje del host para el tipo que pidió el usuario (para el Caso 2)."""
+    return _score_against(host, profile)[0]
+
+
+def classify_host(host: ParsedHost) -> dict:
+    """Evalúa el host contra TODOS los tipos y devuelve el ganador + ranking."""
+    results = []
+    for profile, exp in PROFILE_EXPECTATIONS.items():
+        sc, reasons = _score_against(host, profile)
+        results.append({
+            "profile": profile,
+            "label": PROFILES.get(profile, {}).get("label", profile),
+            "type": exp["type"],
+            "score": sc,
+            "reasons": reasons,
+        })
+    results.sort(key=lambda r: -r["score"])
+    winner = results[0]
+    return {
+        "winner": winner["profile"],
+        "winner_label": winner["label"],
+        "asset_type": winner["type"] if winner["score"] >= REVIEW_THRESHOLD else "unknown",
+        "score": winner["score"],
+        "os": resolve_os(host),
+        "ranking": results[:5],
+    }

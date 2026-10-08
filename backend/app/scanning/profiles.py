@@ -14,6 +14,16 @@ PROFILES: dict[str, dict] = {
         # Barrido ARP sin escaneo de puertos: rápido y suave, ideal antes de un /24.
         "args": ["-sn", "-PR", "--max-rate", "100"],
     },
+    "general": {
+        "label": "Descubrir red / IP (general)",
+        # Amplio: abre un superset de puertos de todos los tipos para poder
+        # recomendar qué escaneo específico correr. Es más lento a propósito.
+        "args": [
+            "-sS", "-sV", "-O", "-T3", "--max-rate", "100",
+            "-p", "21,22,23,80,102,135,139,161,443,445,502,515,554,631,1433,2222,3306,3389,4840,5900,8000,9100,44818,37777",
+            "--script", "banner,http-title,smb-os-discovery,s7-info,modbus-discover,enip-info,snmp-info",
+        ],
+    },
     "plc": {
         "label": "PLC / Controlador",
         "args": [
@@ -54,7 +64,6 @@ PROFILES: dict[str, dict] = {
             "--script", "http-title",
         ],
     },
-    # ---- tipos añadidos ----
     "switch": {
         "label": "Switch / Red gestionada",
         "args": [
@@ -85,6 +94,71 @@ PROFILES: dict[str, dict] = {
             "-sS", "-sV", "-T3", "--max-rate", "80",
             "-p", "80,443,554,8000,8080,37777",
             "--script", "http-title,rtsp-methods",
+        ],
+    },
+
+        "robot": {
+        "label": "Robot (FANUC/ABB/KUKA)",
+        "args": [
+            "-sS", "-sV", "-T2", "--max-rate", "40",
+            "-p", "21,22,80,443,2222,44818,5900",
+            "--script", "http-title,enip-info",
+        ],
+    },
+    "io_remote": {
+        "label": "I/O remota / Gateway de campo",
+        "args": [
+            "-sS", "-sV", "-T2", "--max-rate", "40",
+            "-p", "80,102,161,502,2222,44818",
+            "--script", "modbus-discover,enip-info,s7-info,snmp-info",
+        ],
+    },
+    "instrument": {
+        "label": "Instrumento / Báscula / Lector",
+        "args": [
+            "-sS", "-sV", "-T3", "--max-rate", "80",
+            "-p", "23,80,443,502,161,9100",
+            "--script", "snmp-info,http-title",
+        ],
+    },
+    "scada": {
+        "label": "SCADA / Servidor OPC",
+        "args": [
+            "-sS", "-sV", "-O", "-T3", "--max-rate", "80",
+            "-p", "80,135,139,443,445,1433,4840",
+            "--script", "smb-os-discovery,http-title",
+        ],
+    },
+    "ups": {
+        "label": "UPS / PDU",
+        "args": [
+            "-sS", "-sV", "-T3", "--max-rate", "100",
+            "-p", "80,161,443",
+            "--script", "snmp-info,http-title",
+        ],
+    },
+    "wap": {
+        "label": "Access Point / Wi-Fi industrial",
+        "args": [
+            "-sS", "-sV", "-T3", "--max-rate", "100",
+            "-p", "22,80,161,443",
+            "--script", "snmp-info,http-title",
+        ],
+    },
+    "ewon": {
+        "label": "Ewon / Router de acceso remoto",
+        "args": [
+            "-sS", "-sV", "-T3", "--max-rate", "80",
+            "-p", "80,443,1194",
+            "--script", "http-title,ssl-cert",
+        ],
+    },
+    "mguard": {
+        "label": "mGuard (Phoenix Contact)",
+        "args": [
+            "-sS", "-sV", "-T3", "--max-rate", "80",
+            "-p", "22,80,161,443",
+            "--script", "ssl-cert,http-title,snmp-info",
         ],
     },
 }

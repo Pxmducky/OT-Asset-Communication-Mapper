@@ -2,15 +2,20 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { ReactFlowProvider } from "@xyflow/react";
 
 import { assetApi, communicationApi, excelApi, getErrorMessage, graphApi } from "../services/api";
+import { findingApi } from "../services/scanApi";
 import { buildEdges, buildNodes, groupAssets } from "../utils/graphLayout";
+import { typeLabel } from "../utils/constants";
 
 import AssetDetails from "../components/AssetDetails";
 import AssetForm from "../components/AssetForm";
 import AssetList from "../components/AssetList";
+import BackupsPanel from "../components/BackupsPanel";
 import CommunicationForm from "../components/CommunicationForm";
 import ImportResult from "../components/ImportResult";
 import Modal from "../components/Modal";
 import NetworkMap from "../components/NetworkMap";
+import ReviewPanel from "../components/ReviewPanel";
+import ScanPanel from "../components/ScanPanel";
 import Toolbar from "../components/Toolbar";
 
 const SEARCH_FIELDS = [
@@ -30,12 +35,17 @@ function MapperPage() {
   const [focusMode, setFocusMode] = useState(false);
   const [showLabels, setShowLabels] = useState(false);
   const [search, setSearch] = useState("");
+  const [typeFilter, setTypeFilter] = useState("");
 
-  // dialog: { kind: "asset", asset } | { kind: "communication", communication, preset } | { kind: "import", result }
   const [dialog, setDialog] = useState(null);
   const [dialogError, setDialogError] = useState(null);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState(null);
+
+  const [showScan, setShowScan] = useState(false);
+  const [showReview, setShowReview] = useState(false);
+  const [showBackups, setShowBackups] = useState(false);
+  const [reviewCount, setReviewCount] = useState(0);
 
   const loadData = useCallback(async () => {
     try {
@@ -50,9 +60,24 @@ function MapperPage() {
     }
   }, []);
 
+  const refreshReview = useCallback(async () => {
+    try {
+      const findings = await findingApi.list("review");
+      setReviewCount(findings.length);
+    } catch {
+      /* ignorar */
+    }
+  }, []);
+
+  const handleDataChanged = useCallback(async () => {
+    await loadData();
+    await refreshReview();
+  }, [loadData, refreshReview]);
+
   useEffect(() => {
     loadData();
-  }, [loadData]);
+    refreshReview();
+  }, [loadData, refreshReview]);
 
   useEffect(() => {
     if (!notice) return undefined;
@@ -80,6 +105,14 @@ function MapperPage() {
     [communicationsByAsset]
   );
 
+  const availableTypes = useMemo(() => {
+    const map = new Map();
+    for (const a of assets) if (a.asset_type) map.set(a.asset_type, typeLabel(a.asset_type));
+    return [...map.entries()]
+      .map(([value, label]) => ({ value, label }))
+      .sort((a, b) => a.label.localeCompare(b.label));
+  }, [assets]);
+
   const selectedAsset = selectedId ? assetsById.get(selectedId) ?? null : null;
   const selectedCommunications = useMemo(
     () => (selectedId ? communicationsByAsset.get(selectedId) ?? [] : []),
@@ -98,11 +131,12 @@ function MapperPage() {
 
   const matchingAssets = useMemo(() => {
     const term = search.trim().toLowerCase();
-    if (!term) return assets;
-    return assets.filter((asset) =>
-      SEARCH_FIELDS.some((field) => String(asset[field] ?? "").toLowerCase().includes(term))
-    );
-  }, [assets, search]);
+    return assets.filter((asset) => {
+      if (typeFilter && asset.asset_type !== typeFilter) return false;
+      if (!term) return true;
+      return SEARCH_FIELDS.some((field) => String(asset[field] ?? "").toLowerCase().includes(term));
+    });
+  }, [assets, search, typeFilter]);
 
   const matchIds = useMemo(
     () => (search.trim() ? new Set(matchingAssets.map((asset) => String(asset.id))) : new Set()),
@@ -112,9 +146,11 @@ function MapperPage() {
   const effectiveFocus = focusMode && selectedAsset !== null;
 
   const mapAssets = useMemo(() => {
-    if (!effectiveFocus) return assets;
-    return assets.filter((asset) => asset.id === selectedId || neighborIds.has(String(asset.id)));
-  }, [assets, effectiveFocus, selectedId, neighborIds]);
+    if (effectiveFocus) {
+      return assets.filter((asset) => asset.id === selectedId || neighborIds.has(String(asset.id)));
+    }
+    return matchingAssets;
+  }, [assets, matchingAssets, effectiveFocus, selectedId, neighborIds]);
 
   const layoutNodes = useMemo(() => buildNodes(mapAssets, groupMode), [mapAssets, groupMode]);
 
@@ -222,7 +258,7 @@ function MapperPage() {
       setNotice("Comunicación guardada.");
     } catch (error) {
       setDialogError(getErrorMessage(error));
-      await loadData(); // por si el sentido directo sí se guardó
+      await loadData();
     } finally {
       setBusy(false);
     }
@@ -316,6 +352,10 @@ function MapperPage() {
         onImport={importExcel}
         onExport={exportExcel}
         onNewCommunication={() => newCommunication(selectedId ? { source_asset_id: selectedId } : {})}
+        onOpenScan={() => setShowScan(true)}
+        onOpenReview={() => setShowReview(true)}
+        onOpenBackups={() => setShowBackups(true)}
+        reviewCount={reviewCount}
         busy={busy}
       />
 
@@ -330,6 +370,9 @@ function MapperPage() {
             onSelect={selectAndCenter}
             onCreate={() => openDialog({ kind: "asset", asset: null })}
             commCounts={commCounts}
+            types={availableTypes}
+            typeFilter={typeFilter}
+            onTypeFilterChange={setTypeFilter}
           />
         </aside>
 
@@ -365,6 +408,24 @@ function MapperPage() {
 
       {notice && <div className="toast">{notice}</div>}
 
+      {showScan && (
+        <Modal title="Escaneo de red OT" width={940} onClose={() => setShowScan(false)}>
+          <ScanPanel onDataChanged={handleDataChanged} />
+        </Modal>
+      )}
+
+      {showReview && (
+        <Modal title="Bandeja de revisión" width={760} onClose={() => setShowReview(false)}>
+          <ReviewPanel onDataChanged={handleDataChanged} />
+        </Modal>
+      )}
+
+      {showBackups && (
+        <Modal title="Respaldos de la base" width={820} onClose={() => setShowBackups(false)}>
+          <BackupsPanel onDataChanged={handleDataChanged} />
+        </Modal>
+      )}
+
       {dialog?.kind === "asset" && (
         <Modal title={dialog.asset ? `Editar ${dialog.asset.asset_name}` : "Nuevo activo"} onClose={closeDialog} width={760}>
           <AssetForm
@@ -389,9 +450,9 @@ function MapperPage() {
             busy={busy}
             serverError={dialogError}
           />
-      </Modal>
+        </Modal>
       )}
-{dialog?.kind === "import" && (
+      {dialog?.kind === "import" && (
         <Modal title="Resultado de la importación" onClose={closeDialog} width={560}>
           <ImportResult result={dialog.result} onClose={closeDialog} />
         </Modal>

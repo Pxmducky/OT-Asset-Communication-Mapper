@@ -770,3 +770,113 @@ textarea:focus {
   justify-content: center;
   gap: 12px;
 }
+
+/* ===== Panel de escaneo (Fase 6.1) ===== */
+.scan-panel { display: flex; flex-direction: column; gap: 14px; }
+.scan-tabs { display: flex; gap: 8px; border-bottom: 1px solid #e2e8f0; }
+.scan-tab { background: none; border: none; padding: 8px 14px; cursor: pointer;
+  font-weight: 600; color: #64748b; border-bottom: 2px solid transparent; }
+.scan-tab.active { color: #2563eb; border-bottom-color: #2563eb; }
+.scan-msg { padding: 8px 12px; border-radius: 8px; font-size: 14px; }
+.scan-msg.error { background: #fef2f2; color: #b91c1c; }
+.scan-msg.info { background: #eff6ff; color: #1d4ed8; }
+.scan-target { display: flex; gap: 12px; flex-wrap: wrap; }
+.toolbar-field.grow { flex: 1; min-width: 220px; }
+.toolbar-field.grow input { width: 100%; }
+.scan-hint { font-size: 13px; color: #64748b; margin: 0; }
+.scan-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.scan-type { display: flex; align-items: center; gap: 8px; padding: 12px;
+  border: 1px solid #e2e8f0; border-radius: 10px; background: #f8fafc;
+  cursor: pointer; font-weight: 600; font-size: 13px; text-align: left; transition: all .15s; }
+.scan-type:hover:not(:disabled) { border-color: #2563eb; background: #eff6ff; }
+.scan-type:disabled { opacity: .5; cursor: not-allowed; }
+.scan-type-icon { font-size: 20px; }
+.scan-queue h4 { margin: 4px 0 8px; }
+.scan-queue table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.scan-queue th, .scan-queue td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #f1f5f9; }
+.scan-empty { color: #94a3b8; text-align: center; padding: 14px; }
+.status-badge { padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+.status-badge.pending { background: #fef9c3; color: #854d0e; }
+.status-badge.running { background: #dbeafe; color: #1e40af; }
+.status-badge.completed { background: #dcfce7; color: #166534; }
+.status-badge.failed { background: #fee2e2; color: #991b1b; }
+.pill { padding: 2px 8px; border-radius: 999px; font-size: 12px; }
+.pill.running { background: #dbeafe; color: #1e40af; }
+.pill.pending { background: #fef9c3; color: #854d0e; }
+.scan-net-form { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+.scan-net-form input { flex: 1; min-width: 160px; padding: 8px; border: 1px solid #cbd5e1; border-radius: 8px; }
+.scan-net-list { list-style: none; padding: 0; margin: 0; }
+.scan-net-list li { display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 0; border-bottom: 1px solid #f1f5f9; }
+.button.danger { background: #ef4444; color: #fff; }
+.button.small { padding: 4px 10px; font-size: 12px; }
+
+.type-filter { width: 100%; padding: 8px; margin-bottom: 8px; border: 1px solid #cbd5e1; border-radius: 8px; }
+
+/* Servicios por activo */
+.muted { color: #94a3b8; font-weight: 400; font-size: 12px; }
+.service-list { display: flex; flex-direction: column; gap: 4px; }
+.service-row { display: grid; grid-template-columns: 70px 1fr auto; gap: 8px; align-items: center;
+  font-size: 13px; padding: 4px 0; border-bottom: 1px solid #f1f5f9; }
+.service-port { font-weight: 700; color: #1e40af; }
+.service-name { color: #334155; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.service-state { font-size: 11px; padding: 1px 6px; border-radius: 999px; background: #f1f5f9; color: #64748b; }
+.service-state.open { background: #dcfce7; color: #166534; }
+
+/* Bandeja de revisión */
+.review-list { display: flex; flex-direction: column; gap: 10px; }
+.review-card { border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; }
+.review-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.review-head small { display: block; color: #64748b; }
+.confidence-badge { padding: 3px 10px; border-radius: 999px; font-weight: 700; font-size: 13px; }
+.confidence-badge.high { background: #dcfce7; color: #166534; }
+.confidence-badge.mid { background: #fef9c3; color: #854d0e; }
+.confidence-badge.low { background: #fee2e2; color: #991b1b; }
+.review-ports { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
+.port-chip { font-size: 12px; background: #f1f5f9; color: #334155; padding: 2px 8px; border-radius: 6px; }
+.review-actions { display: flex; gap: 8px; }
+
+/* Respaldos */
+.backups-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 12px; }
+.backups-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.backups-table th, .backups-table td { text-align: left; padding: 8px; border-bottom: 1px solid #f1f5f9; }
+.backups-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.button.restore { background: #f59e0b; color: #fff; }
+
+/* ===== Detalle de escaneo (Entrega 2) ===== */
+.discover-btn { width: 100%; justify-content: center; margin-bottom: 8px; }
+.clickable-row { cursor: pointer; }
+.clickable-row:hover { background: #f8fafc; }
+.row-arrow { color: #94a3b8; font-weight: 700; }
+
+.scan-detail { display: flex; flex-direction: column; gap: 14px; }
+.link-back { align-self: flex-start; background: none; border: none; color: #2563eb;
+  cursor: pointer; font-weight: 600; padding: 0; }
+.scan-detail-head h3 { margin: 0; }
+.scan-detail-head small { color: #64748b; }
+
+.reco-block { border: 1px solid #bfdbfe; background: #eff6ff; border-radius: 10px; padding: 12px; }
+.reco-block h4 { margin: 0 0 4px; }
+.reco-list { list-style: none; padding: 0; margin: 8px 0 0; display: flex; flex-direction: column; gap: 8px; }
+.reco-list li { display: flex; justify-content: space-between; align-items: center; gap: 10px;
+  background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 10px; }
+
+.host-cards { display: flex; flex-direction: column; gap: 10px; }
+.host-card { border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; }
+.host-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.host-head small { display: block; color: #64748b; }
+.host-type { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+.type-name { font-weight: 600; color: #334155; }
+.host-status { margin: 8px 0; }
+
+/* ===== Redes con ubicación (Entrega 3) ===== */
+.net-form { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+.net-form-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.net-form-row input { flex: 1; min-width: 120px; padding: 8px; border: 1px solid #cbd5e1; border-radius: 8px; }
+.net-item { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;
+  padding: 10px 0; border-bottom: 1px solid #f1f5f9; }
+.net-info { flex: 1; }
+.net-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.net-actions { display: flex; gap: 6px; }
+.net-edit { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+.net-edit-actions { display: flex; gap: 8px; }

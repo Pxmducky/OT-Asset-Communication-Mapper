@@ -1,5 +1,8 @@
+import { useEffect, useState } from "react";
+
 import AssetIcon from "./AssetIcon";
 import { typeLabel } from "../utils/constants";
+import { assetServiceApi } from "../services/scanApi";
 
 function DetailRow({ label, value }) {
   return (
@@ -7,6 +10,49 @@ function DetailRow({ label, value }) {
       <span>{label}</span>
       <strong>{value || "—"}</strong>
     </div>
+  );
+}
+
+function AssetServicesSection({ assetId }) {
+  const [services, setServices] = useState([]);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    let alive = true;
+    setLoaded(false);
+    assetServiceApi
+      .list(assetId)
+      .then((data) => alive && (setServices(data), setLoaded(true)))
+      .catch(() => alive && (setServices([]), setLoaded(true)));
+    return () => {
+      alive = false;
+    };
+  }, [assetId]);
+
+  if (loaded && services.length === 0) return null; // sin servicios de escaneo: no mostrar
+
+  return (
+    <section className="details-section">
+      <h3>
+        Servicios / Puertos <small className="muted">(propios del equipo, no comunicaciones)</small>
+      </h3>
+      {!loaded && <p className="empty">Cargando…</p>}
+      <div className="service-list">
+        {services.map((s) => (
+          <div key={s.id} className="service-row">
+            <span className="service-port">
+              {s.port}/{s.transport}
+            </span>
+            <span className="service-name">
+              {s.service || "?"}
+              {s.product ? ` · ${s.product}` : ""}
+              {s.version ? ` ${s.version}` : ""}
+            </span>
+            <span className={`service-state ${s.state}`}>{s.state}</span>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -70,6 +116,8 @@ function AssetDetails({
 
   const itemProps = { onSelectAsset, onEdit: onEditCommunication, onDelete: onDeleteCommunication };
 
+  const sourceLabel = { manual: "Manual", excel: "Excel", scan: "Escaneo" }[asset.discovery_source] ?? asset.discovery_source;
+
   return (
     <div className="asset-details">
       <div className="details-header">
@@ -111,7 +159,22 @@ function AssetDetails({
         <h3>Equipo</h3>
         <DetailRow label="Fabricante" value={asset.vendor} />
         <DetailRow label="Producto" value={asset.product} />
+        <DetailRow label="Sistema operativo" value={asset.os} />
       </section>
+
+      <AssetServicesSection assetId={asset.id} />
+
+      {(asset.discovery_source || asset.last_seen || asset.confidence != null) && (
+        <section className="details-section">
+          <h3>Descubrimiento</h3>
+          <DetailRow label="Origen" value={sourceLabel} />
+          <DetailRow label="Confianza" value={asset.confidence != null ? `${asset.confidence}%` : null} />
+          <DetailRow
+            label="Último escaneo"
+            value={asset.last_seen ? new Date(asset.last_seen).toLocaleString() : null}
+          />
+        </section>
+      )}
 
       <section className="details-section">
         <div className="section-title">

@@ -13,13 +13,17 @@ function Toolbar({
   onImport,
   onExport,
   onNewCommunication,
+  onOpenScan,
+  onOpenReview,
+  onOpenBackups,
+  reviewCount,
   busy,
 }) {
   const fileInput = useRef(null);
 
   function handleFile(event) {
     const file = event.target.files?.[0];
-    event.target.value = ""; // permite volver a elegir el mismo archivo
+    event.target.value = "";
     if (file) onImport(file);
   }
 
@@ -53,6 +57,15 @@ function Toolbar({
 
       <div className="toolbar-spacer" />
 
+      <button type="button" className="button primary" onClick={onOpenScan}>
+        🔍 Escanear red
+      </button>
+      <button type="button" className="button secondary" onClick={onOpenReview}>
+        🔎 Revisar{reviewCount ? ` (${reviewCount})` : ""}
+      </button>
+      <button type="button" className="button secondary" onClick={onOpenBackups}>
+        💾 Respaldos
+      </button>
       <button type="button" className="button secondary" onClick={onNewCommunication}>
         + Comunicación
       </button>
