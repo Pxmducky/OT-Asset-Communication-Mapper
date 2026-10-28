@@ -24,7 +24,7 @@ function parseSummary(value) {
   }
 }
 
-export default function ScanPanel({ onDataChanged }) {
+export default function ScanPanel({ onDataChanged, assets }) {
   const [tab, setTab] = useState("scan");
   const [profiles, setProfiles] = useState([]);
   const [networks, setNetworks] = useState([]);
@@ -149,7 +149,15 @@ export default function ScanPanel({ onDataChanged }) {
   // ----- Vista de detalle de un escaneo -----
   if (selectedScan) {
     const fresh = scans.find((s) => s.id === selectedScan.id) ?? selectedScan;
-    return <ScanDetail scan={fresh} onLaunch={launchRecommended} onBack={() => setSelectedScan(null)} />;
+    return (
+      <ScanDetail
+        scan={fresh}
+        assets={assets}
+        onLaunch={launchRecommended}
+        onBack={() => setSelectedScan(null)}
+        onDataChanged={onDataChanged}
+      />
+    );
   }
 
   return (

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 import AssetIcon from "./AssetIcon";
 import { typeLabel } from "../utils/constants";
-import { assetServiceApi } from "../services/scanApi";
+import { assetServiceApi, assetFingerprintApi } from "../services/scanApi";
 
 function DetailRow({ label, value }) {
   return (
@@ -12,7 +12,51 @@ function DetailRow({ label, value }) {
     </div>
   );
 }
+function AssetFingerprintsSection({ assetId }) {
+  const [items, setItems] = useState([]);
+  const [loaded, setLoaded] = useState(false);
 
+  useEffect(() => {
+    let alive = true;
+    setLoaded(false);
+    assetFingerprintApi
+      .list(assetId)
+      .then((d) => alive && (setItems(d), setLoaded(true)))
+      .catch(() => alive && (setItems([]), setLoaded(true)));
+    return () => {
+      alive = false;
+    };
+  }, [assetId]);
+
+  if (loaded && items.length === 0) return null;
+
+  const identity = items.filter((i) => i.kind === "identity");
+  const services = items.filter((i) => i.kind !== "identity");
+
+  return (
+    <section className="details-section">
+      <h3>
+        Identificaciones <small className="muted">(detectadas por escaneo)</small>
+      </h3>
+      {identity.map((i) => (
+        <div key={i.id} className="fp-identity">
+          {i.label}
+          {i.detail && <small>{i.detail}</small>}
+        </div>
+      ))}
+      {services.length > 0 && (
+        <div className="fp-block">
+          <span className="fp-title">Otros servicios</span>
+          <div className="review-ports">
+            {services.map((i) => (
+              <span key={i.id} className="port-chip">{i.label}</span>
+            ))}
+          </div>
+        </div>
+      )}
+    </section>
+  );
+}
 function AssetServicesSection({ assetId }) {
   const [services, setServices] = useState([]);
   const [loaded, setLoaded] = useState(false);
@@ -163,6 +207,7 @@ function AssetDetails({
       </section>
 
       <AssetServicesSection assetId={asset.id} />
+      <AssetFingerprintsSection assetId={asset.id} />
 
       {(asset.discovery_source || asset.last_seen || asset.confidence != null) && (
         <section className="details-section">

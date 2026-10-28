@@ -10,7 +10,7 @@ from app.config import get_scanner_settings
 from app.database.database import DATA_DIR
 from app.models import Agent, Scan, ScanRequest
 from app.scanning.local_scanner import get_or_create_local_scanner
-from app.scanning.profiles import get_profile_args, profile_exists
+from app.scanning.profiles import get_profile_args, get_profile_udp_args, profile_exists
 from app.scanning.targets import (
     TargetNotAuthorizedError,
     network_contains_target,
@@ -158,6 +158,10 @@ class ScanService:
     @staticmethod
     def job_args(scan: Scan) -> list[str]:
         return get_profile_args(scan.scan_profile)
+    
+    @staticmethod
+    def job_udp_args(scan: Scan) -> list[str]:
+        return get_profile_udp_args(scan.scan_profile)
 
     # ---------- resultado (lo llama el worker interno) ----------
 

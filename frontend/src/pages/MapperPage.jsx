@@ -410,10 +410,9 @@ function MapperPage() {
 
       {showScan && (
         <Modal title="Escaneo de red OT" width={940} onClose={() => setShowScan(false)}>
-          <ScanPanel onDataChanged={handleDataChanged} />
+          <ScanPanel onDataChanged={handleDataChanged} assets={assets} />
         </Modal>
       )}
-
       {showReview && (
         <Modal title="Bandeja de revisión" width={760} onClose={() => setShowReview(false)}>
           <ReviewPanel onDataChanged={handleDataChanged} />

@@ -119,3 +119,31 @@ def parse_nmap_xml(xml_text: str) -> list[ParsedHost]:
             ports=ports, host_scripts=host_scripts, osmatches=osmatches,
         ))
     return hosts
+
+def merge_hosts(primary: list[ParsedHost], secondary: list[ParsedHost]) -> list[ParsedHost]:
+    """Fusiona dos listas de hosts por IP (p. ej. resultado TCP + resultado UDP).
+
+    Une los puertos (sin duplicar por puerto+transporte), combina los scripts y
+    completa campos vacíos. Los objetos de 'primary' se modifican en el sitio.
+    """
+    by_ip = {h.ip: h for h in primary if h.ip}
+    extra: list[ParsedHost] = []
+    for h in secondary:
+        if not h.ip:
+            continue
+        base = by_ip.get(h.ip)
+        if base is None:
+            by_ip[h.ip] = h
+            extra.append(h)
+            continue
+        seen = {(p.port, p.transport) for p in base.ports}
+        for p in h.ports:
+            if (p.port, p.transport) not in seen:
+                base.ports.append(p)
+        base.host_scripts.update(h.host_scripts)
+        base.mac = base.mac or h.mac
+        base.vendor = base.vendor or h.vendor
+        base.hostname = base.hostname or h.hostname
+        if not base.osmatches:
+            base.osmatches = h.osmatches
+    return primary + extra

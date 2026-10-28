@@ -1,11 +1,10 @@
-"""Convierte el XML de un escaneo en activos, clasificando por el MEJOR tipo.
+"""Convierte el XML en activos, clasificando por evidencias.
 
-- El tipo lo decide el mayor puntaje entre todos los tipos (no el botón).
-- Activo existente (por IP): completa campos vacíos + servicios + last_seen.
-- Activo nuevo: se crea solo si el mejor puntaje >= APPLY_THRESHOLD.
-  Si no, va a revisión y genera una RECOMENDACIÓN de qué escaneo correr.
-- Genera consejos: descubrimiento recomienda tipos; escaneo específico fallido
-  avisa que mejor uses 'Descubrir'.
+- Clasifica por el tipo con más evidencia (no por el botón).
+- Separa el tipo del activo de sus servicios/fingerprints (se guardan en
+  asset_fingerprints; decisión 2).
+- Las evidencias que justifican el tipo van en el hallazgo (detalle del escaneo).
+- Recomendaciones por host y agregadas por subred.
 """
 import json
 import logging
@@ -16,27 +15,20 @@ from pathlib import Path
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.models import Asset, AssetService as AssetServiceRow, Scan, ScanFinding
-from app.scanning.confidence import (
-    APPLY_THRESHOLD,
-    REVIEW_THRESHOLD,
-    SUGGEST_THRESHOLD,
-    classify_host,
-    score_for_profile,
+from app.models import (
+    Asset, AssetFingerprint, AssetService as AssetServiceRow, Scan, ScanFinding,
 )
-from app.scanning.parser import ParsedHost, parse_nmap_xml
+from app.scanning.confidence import APPLY_THRESHOLD, REVIEW_THRESHOLD, SUGGEST_THRESHOLD, classify_host
+from app.scanning.parser import ParsedHost, merge_hosts, parse_nmap_xml
 from app.scanning.profiles import PROFILES
 from app.services.asset_service import AssetService as AssetSvc
-from app.scanning.local_scanner import get_or_create_local_scanner
-from app.scanning.targets import TargetMalformedError, network_contains_target, parse_target
 
 log = logging.getLogger("ot-scanner")
 
-_DISCOVERY_PROFILES = {"discovery", "general"}
+_DISCOVERY = {"discovery", "general"}
 
 
 def _host_product(host: ParsedHost) -> str | None:
-    """Mejor cadena de producto/versión del host (para el punto 1)."""
     for p in host.ports:
         if p.product:
             return (p.product + (f" {p.version}" if p.version else "")).strip()
@@ -52,15 +44,21 @@ class ScanProcessor:
             return {}
 
         hosts = parse_nmap_xml(Path(scan.raw_xml_path).read_text(encoding="utf-8"))
-        is_discovery = scan.scan_profile in _DISCOVERY_PROFILES
+        main = Path(scan.raw_xml_path)
+        udp = main.with_name(main.stem + "_udp" + main.suffix)
+        if udp.exists():
+            try:
+                hosts = merge_hosts(hosts, parse_nmap_xml(udp.read_text(encoding="utf-8")))
+            except Exception:
+                log.exception("No se pudo fusionar el XML UDP del escaneo %s", scan_id)
+
+        is_discovery = scan.scan_profile in _DISCOVERY
         req_label = PROFILES.get(scan.scan_profile, {}).get("label", scan.scan_profile)
 
-        summary = {
-            "hosts_up": len(hosts), "created": 0, "updated": 0, "services": 0,
-            "review": 0, "low": 0, "scan_profile": scan.scan_profile,
-        }
-        recommendations: list[dict] = []
-        host_cards: list[dict] = []
+        summary = {"hosts_up": len(hosts), "created": 0, "updated": 0, "services": 0,
+                   "review": 0, "low": 0, "scan_profile": scan.scan_profile}
+        recommendations, host_cards = [], []
+        winners = Counter()
         requested_best = 0
 
         for host in hosts:
@@ -68,12 +66,12 @@ class ScanProcessor:
                 continue
             cls = classify_host(host)
             if not is_discovery:
-                requested_best = max(requested_best, score_for_profile(host, scan.scan_profile))
+                requested_best = max(requested_best, cls["scores"].get(scan.scan_profile, 0))
+            if cls["winner"] and cls["score"] >= SUGGEST_THRESHOLD:
+                winners[cls["winner_label"]] += 1
 
-            host_cards.append({
-                "ip": host.ip, "winner": cls["winner"], "winner_label": cls["winner_label"],
-                "type": cls["asset_type"], "score": cls["score"], "os": cls["os"],
-            })
+            host_cards.append({"ip": host.ip, "winner": cls["winner"], "winner_label": cls["winner_label"],
+                               "type": cls["asset_type"], "score": cls["score"], "os": cls["os"]})
 
             finding = ScanFinding(
                 scan_id=scan.id, ip=host.ip, mac=host.mac, vendor=host.vendor,
@@ -86,96 +84,68 @@ class ScanProcessor:
                 _, updated = ScanProcessor._apply(db, existing, host, cls)
                 summary["updated"] += updated
                 summary["services"] += ScanProcessor._upsert_services(db, existing, host)
+                ScanProcessor._upsert_fingerprints(db, existing, cls)
                 finding.matched_asset_id = existing.id
                 finding.status, finding.applied = "confirmed", True
             elif cls["score"] >= APPLY_THRESHOLD:
                 asset = ScanProcessor._create(db, host, cls)
                 summary["created"] += 1
                 summary["services"] += ScanProcessor._upsert_services(db, asset, host)
+                ScanProcessor._upsert_fingerprints(db, asset, cls)
                 finding.matched_asset_id = asset.id
                 finding.status, finding.applied = "confirmed", True
             else:
                 finding.status, finding.applied = "review", False
                 summary["review" if cls["score"] >= REVIEW_THRESHOLD else "low"] += 1
-                if cls["score"] >= SUGGEST_THRESHOLD:
-                    recommendations.append({
-                        "ip": host.ip, "suggested_profile": cls["winner"],
-                        "suggested_label": cls["winner_label"], "score": cls["score"],
-                    })
-
+                if cls["score"] >= SUGGEST_THRESHOLD and cls["winner"]:
+                    recommendations.append({"ip": host.ip, "suggested_profile": cls["winner"],
+                                            "suggested_label": cls["winner_label"], "score": cls["score"]})
             db.add(finding)
 
-        # ----- consejos (Caso 1 descubrir / Caso 2 específico fallido) -----
-        advice = None
-        if is_discovery:
-            if recommendations:
-                counts = Counter(r["suggested_label"] for r in recommendations)
-                parts = ", ".join(f"{label} (x{n})" for label, n in counts.items())
-                advice = f"Descubrimiento listo. Te recomiendo escanear específicamente: {parts}."
-            elif summary["created"] == 0:
-                advice = "Descubrimiento listo, pero no reconocí tipos claros. Revisa los hallazgos."
-        elif requested_best < REVIEW_THRESHOLD:
-            if recommendations:
-                best = max(recommendations, key=lambda r: r["score"])
-                advice = (f"Poco probable que sea {req_label}. Se parece más a "
-                          f"{best['suggested_label']} ({best['score']}%). Corre 'Descubrir red/IP'.")
-            else:
-                advice = (f"Poco probable que sea {req_label} y no hay señales claras de otro tipo. "
-                          f"Corre 'Descubrir red/IP'.")
-
-        summary["advice"] = advice
+        summary["breakdown"] = [{"label": lbl, "count": n} for lbl, n in winners.most_common()]
+        summary["advice"] = ScanProcessor._advice(is_discovery, req_label, requested_best, winners, recommendations)
         summary["recommendations"] = recommendations
         summary["hosts"] = host_cards
         scan.summary = json.dumps(summary)
         db.commit()
         return summary
 
-    # ---------- aplicar un hallazgo desde la bandeja (manual) ----------
+    @staticmethod
+    def _advice(is_discovery, req_label, requested_best, winners, recommendations):
+        if is_discovery:
+            if winners:
+                parts = ", ".join(f"{lbl} ({n})" for lbl, n in winners.most_common())
+                return (f"La red presenta: {parts}. Se recomienda ejecutar el descubrimiento "
+                        f"especializado de los tipos detectados.")
+            return "Descubrimiento listo, pero no reconocí tipos claros. Revisa los hallazgos."
+        if requested_best < REVIEW_THRESHOLD:
+            if recommendations:
+                best = max(recommendations, key=lambda r: r["score"])
+                return (f"Poco probable que sea {req_label}. Se parece más a "
+                        f"{best['suggested_label']} ({best['score']}%). Corre 'Descubrir red/IP'.")
+            return f"Poco probable que sea {req_label} y sin señales claras de otro tipo. Corre 'Descubrir red/IP'."
+        return None
+
+    # ---------- aplicar un hallazgo manual ----------
 
     @staticmethod
     def apply_finding(db: Session, finding: ScanFinding) -> Asset:
         data = json.loads(finding.raw) if finding.raw else {}
-        host = ParsedHost.from_dict(data.get("host", data))  # compat con formato viejo
+        host = ParsedHost.from_dict(data.get("host", data))
         cls = classify_host(host)
-
         asset = AssetSvc.get_by_ip(db, host.ip) if host.ip else None
         if asset is None:
             asset = ScanProcessor._create(db, host, cls)
         else:
             ScanProcessor._apply(db, asset, host, cls)
         ScanProcessor._upsert_services(db, asset, host)
-
+        ScanProcessor._upsert_fingerprints(db, asset, cls)
         finding.matched_asset_id = asset.id
         finding.status, finding.applied = "confirmed", True
         db.commit()
         return asset
 
     # ---------- helpers ----------
-    @staticmethod
-    def _network_for_ip(db: Session, ip: str):
-        """La red autorizada MÁS específica que contiene esta IP (para heredar ubicación)."""
-        try:
-            target = parse_target(ip)
-        except TargetMalformedError:
-            return None
-        agent = get_or_create_local_scanner(db)
-        best, best_len = None, -1
-        for n in agent.allowed_networks:
-            if network_contains_target(n.cidr, target):
-                plen = int(n.cidr.split("/")[1]) if "/" in n.cidr else 32
-                if plen > best_len:
-                    best, best_len = n, plen
-        return best
-
-    @staticmethod
-    def _apply_location(db: Session, asset: Asset, ip: str) -> None:
-        net = ScanProcessor._network_for_ip(db, ip)
-        if net is None:
-            return
-        ScanProcessor._fill_empty(asset, "plant", net.plant)
-        ScanProcessor._fill_empty(asset, "building", net.building)
-        ScanProcessor._fill_empty(asset, "production_line", net.production_line)
-        ScanProcessor._fill_empty(asset, "vlan", net.vlan)
 
     @staticmethod
     def _fill_empty(asset: Asset, field: str, value) -> bool:
@@ -191,23 +161,14 @@ class ScanProcessor:
     @staticmethod
     def _create(db: Session, host: ParsedHost, cls: dict) -> Asset:
         asset = Asset(
-            asset_code=AssetSvc.next_code(db),
-            asset_name=host.hostname or host.ip,
-            asset_type=cls["asset_type"],
-            ip=host.ip,
-            mac=host.mac,
-            hostname=host.hostname,
-            vendor=host.vendor,
-            product=_host_product(host),
-            os=cls["os"],
-            status="confirmed",
-            discovery_source="scan",
-            confidence=cls["score"],
+            asset_code=AssetSvc.next_code(db), asset_name=host.hostname or host.ip,
+            asset_type=cls["asset_type"], ip=host.ip, mac=host.mac, hostname=host.hostname,
+            vendor=host.vendor, product=_host_product(host), os=cls["os"],
+            status="confirmed", discovery_source="scan", confidence=cls["score"],
             last_seen=datetime.now(timezone.utc),
         )
         db.add(asset)
         db.flush()
-        ScanProcessor._apply_location(db, asset, host.ip)
         return asset
 
     @staticmethod
@@ -219,9 +180,28 @@ class ScanProcessor:
         changed |= ScanProcessor._fill_empty(asset, "vendor", host.vendor)
         changed |= ScanProcessor._fill_empty(asset, "product", _host_product(host))
         changed |= ScanProcessor._fill_empty(asset, "os", cls["os"])
-        ScanProcessor._apply_location(db, asset, host.ip)
         asset.last_seen = datetime.now(timezone.utc)
         return (0, 1 if changed else 0)
+
+    @staticmethod
+    def _upsert_fingerprints(db: Session, asset: Asset, cls: dict) -> None:
+        now = datetime.now(timezone.utc)
+        for fp in cls.get("fingerprints", []):
+            row = db.scalar(
+                select(AssetFingerprint).where(
+                    AssetFingerprint.asset_id == asset.id, AssetFingerprint.label == fp["label"]
+                )
+            )
+            if row is None:
+                db.add(AssetFingerprint(
+                    asset_id=asset.id, kind=fp["kind"], label=fp["label"], detail=fp.get("detail"),
+                    port=fp.get("port"), transport=fp.get("transport"), source=fp.get("source"),
+                    first_seen=now, last_seen=now,
+                ))
+            else:
+                row.last_seen = now
+                if fp.get("detail"):
+                    row.detail = fp["detail"]
 
     @staticmethod
     def _upsert_services(db: Session, asset: Asset, host: ParsedHost) -> int:
@@ -232,8 +212,7 @@ class ScanProcessor:
                 continue
             row = db.scalar(
                 select(AssetServiceRow).where(
-                    AssetServiceRow.asset_id == asset.id,
-                    AssetServiceRow.port == p.port,
+                    AssetServiceRow.asset_id == asset.id, AssetServiceRow.port == p.port,
                     AssetServiceRow.transport == p.transport,
                 )
             )

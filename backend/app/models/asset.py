@@ -66,7 +66,11 @@ class Asset(Base):
         back_populates="asset",
         cascade="all, delete-orphan",
     )
-
+    fingerprints = relationship(
+        "AssetFingerprint",
+        back_populates="asset",
+        cascade="all, delete-orphan",
+    )
 
 Index("ix_assets_mac", Asset.mac)
 Index("ix_assets_location", Asset.plant, Asset.building, Asset.production_line)

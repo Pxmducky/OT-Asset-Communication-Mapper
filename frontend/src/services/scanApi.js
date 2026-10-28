@@ -25,6 +25,11 @@ export const findingApi = {
   forScan: async (scanId) => (await api.get(`/scans/${scanId}/findings`)).data,
   apply: async (id) => (await api.post(`/findings/${id}/apply`)).data,
   discard: async (id) => (await api.post(`/findings/${id}/discard`)).data,
+  reclassify: async (id) => (await api.post(`/findings/${id}/reclassify`)).data,
+};
+
+export const assetFingerprintApi = {
+  list: async (assetId) => (await api.get(`/assets/${assetId}/fingerprints`)).data,
 };
 
 export const assetServiceApi = {

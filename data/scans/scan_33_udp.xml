@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE nmaprun>
+<?xml-stylesheet href="file:///usr/share/nmap/nmap.xsl" type="text/xsl"?>
+<!-- Nmap 7.99 scan initiated Thu Oct  8 17:17:14 2026 as: /usr/lib/nmap/nmap -&#45;privileged -sU -sV -T2 -&#45;max-rate 40 -p 161,47808 -&#45;script snmp-info -oX - 172.16.97.114/32 -->
+<nmaprun scanner="nmap" args="/usr/lib/nmap/nmap -&#45;privileged -sU -sV -T2 -&#45;max-rate 40 -p 161,47808 -&#45;script snmp-info -oX - 172.16.97.114/32" start="1791501434" startstr="Thu Oct  8 17:17:14 2026" version="7.99" xmloutputversion="1.05">
+<scaninfo type="udp" protocol="udp" numservices="2" services="161,47808"/>
+<verbose level="0"/>
+<debugging level="0"/>
+<hosthint><status state="up" reason="unknown-response" reason_ttl="0"/>
+<address addr="172.16.97.114" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+</hosthint>
+<host starttime="1791501441" endtime="1791501675"><status state="up" reason="reset" reason_ttl="255"/>
+<address addr="172.16.97.114" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="udp" portid="161"><state state="open|filtered" reason="no-response" reason_ttl="0"/><service name="snmp" method="table" conf="3"/></port>
+<port protocol="udp" portid="47808"><state state="open|filtered" reason="no-response" reason_ttl="0"/><service name="bacnet" method="table" conf="3"/></port>
+</ports>
+<times srtt="952" rttvar="5000" to="400000"/>
+</host>
+<runstats><finished time="1791501675" timestr="Thu Oct  8 17:21:15 2026" summary="Nmap done at Thu Oct  8 17:21:15 2026; 1 IP address (1 host up) scanned in 240.35 seconds" elapsed="240.35" exit="success"/><hosts up="1" down="0" total="1"/>
+</runstats>
+</nmaprun>
