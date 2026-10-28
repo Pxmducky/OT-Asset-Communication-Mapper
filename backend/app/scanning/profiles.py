@@ -104,29 +104,38 @@ PROFILES: dict[str, dict] = {
     # ============================================================
     # 4. HMI
     # ============================================================
-    "hmi": {
-        "label": "HMI",
 
-        "args": [
-            "-sS",
-            "-sV",
-            "-T2",
-            "--max-rate", "40",
+  "hmi": {
+    "label": "HMI / Panel de operador",
 
-            "-p",
-            "21,22,23,80,102,443,502,3389,5900,44818",
+    "args": [
+        "-sS",
+        "-sV",
+        "--version-light",
+        "-T2",
+        "--reason",
+        "--max-rate", "30",
 
-            "--script",
-            (
-                "banner,"
-                "http-title,"
-                "ssl-cert,"
-                "s7-info,"
-                "enip-info,"
-                "modbus-discover"
-            ),
-        ],
-    },
+        "-p",
+        "21,22,23,80,102,135,139,443,445,"
+        "502,1883,3389,4840,5900,5985,8080,8443,44818",
+
+        "--script",
+        "banner,http-title,http-headers,ssl-cert,"
+        "s7-info,enip-info,modbus-discover,"
+        "smb-os-discovery"
+    ],
+
+    "udp_args": [
+        "-sU",
+        "-T2",
+        "--reason",
+        "--max-rate", "20",
+        "-p", "161",
+        "--script", "snmp-info"
+    ]
+},
+
 
     # ============================================================
     # 5. PRINTERS

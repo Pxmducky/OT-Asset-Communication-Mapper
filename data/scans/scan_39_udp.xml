@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE nmaprun>
+<?xml-stylesheet href="file:///usr/share/nmap/nmap.xsl" type="text/xsl"?>
+<!-- Nmap 7.99 scan initiated Wed Oct 28 15:26:46 2026 as: /usr/lib/nmap/nmap -&#45;privileged -sU -T2 -&#45;reason -&#45;max-rate 20 -p 161 -&#45;script snmp-info -oX - 172.16.97.11/32 -->
+<nmaprun scanner="nmap" args="/usr/lib/nmap/nmap -&#45;privileged -sU -T2 -&#45;reason -&#45;max-rate 20 -p 161 -&#45;script snmp-info -oX - 172.16.97.11/32" start="1793222806" startstr="Wed Oct 28 15:26:46 2026" version="7.99" xmloutputversion="1.05">
+<scaninfo type="udp" protocol="udp" numservices="1" services="161"/>
+<verbose level="0"/>
+<debugging level="0"/>
+<hosthint><status state="up" reason="unknown-response" reason_ttl="0"/>
+<address addr="172.16.97.11" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+</hosthint>
+<host starttime="1793222808" endtime="1793222808"><status state="up" reason="echo-reply" reason_ttl="255"/>
+<address addr="172.16.97.11" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="udp" portid="161"><state state="open" reason="udp-response" reason_ttl="64"/><service name="snmp" product="net-snmp SNMPv3 server" method="probed" conf="10"/><script id="snmp-info" output="&#xa;  enterprise: net-snmp&#xa;  engineIDFormat: unknown&#xa;  engineIDData: 1962aa2a8095cf56&#xa;  snmpEngineBoots: 2&#xa;  snmpEngineTime: 93d05h27m05s"><elem key="enterprise">net-snmp</elem>
+<elem key="engineIDFormat">unknown</elem>
+<elem key="engineIDData">1962aa2a8095cf56</elem>
+<elem key="snmpEngineBoots">2</elem>
+<elem key="snmpEngineTime">93d05h27m05s</elem>
+</script></port>
+</ports>
+<times srtt="41463" rttvar="33530" to="400000"/>
+</host>
+<runstats><finished time="1793222808" timestr="Wed Oct 28 15:26:48 2026" summary="Nmap done at Wed Oct 28 15:26:48 2026; 1 IP address (1 host up) scanned in 1.79 seconds" elapsed="1.79" exit="success"/><hosts up="1" down="0" total="1"/>
+</runstats>
+</nmaprun>

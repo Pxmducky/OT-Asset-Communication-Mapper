@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE nmaprun>
+<?xml-stylesheet href="file:///usr/share/nmap/nmap.xsl" type="text/xsl"?>
+<!-- Nmap 7.99 scan initiated Wed Oct 28 15:23:56 2026 as: /usr/lib/nmap/nmap -&#45;privileged -sS -sV -T3 -&#45;max-rate 100 -p 21,22,23,80,102,135,139,443,445,502,515,554,631,1433,1883,2222,3306,3389,4840,5900,8000,8080,9100,20000,34964,37777,44818 -&#45;script banner,http-title,smb-os-discovery,s7-info,modbus-discover,enip-info,ssl-cert,rtsp-methods -oX - 172.16.97.11/32 -->
+<nmaprun scanner="nmap" args="/usr/lib/nmap/nmap -&#45;privileged -sS -sV -T3 -&#45;max-rate 100 -p 21,22,23,80,102,135,139,443,445,502,515,554,631,1433,1883,2222,3306,3389,4840,5900,8000,8080,9100,20000,34964,37777,44818 -&#45;script banner,http-title,smb-os-discovery,s7-info,modbus-discover,enip-info,ssl-cert,rtsp-methods -oX - 172.16.97.11/32" start="1793222636" startstr="Wed Oct 28 15:23:56 2026" version="7.99" xmloutputversion="1.05">
+<scaninfo type="syn" protocol="tcp" numservices="27" services="21-23,80,102,135,139,443,445,502,515,554,631,1433,1883,2222,3306,3389,4840,5900,8000,8080,9100,20000,34964,37777,44818"/>
+<verbose level="0"/>
+<debugging level="0"/>
+<hosthint><status state="up" reason="unknown-response" reason_ttl="0"/>
+<address addr="172.16.97.11" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+</hosthint>
+<host starttime="1793222637" endtime="1793222655"><status state="up" reason="reset" reason_ttl="255"/>
+<address addr="172.16.97.11" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="21"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="ftp" method="table" conf="3"/></port>
+<port protocol="tcp" portid="22"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="ssh" product="Dropbear sshd" version="2014.63" extrainfo="protocol 2.0" ostype="Linux" method="probed" conf="10"><cpe>cpe:/a:matt_johnston:dropbear_ssh_server:2014.63</cpe><cpe>cpe:/o:linux:linux_kernel</cpe></service><script id="banner" output="SSH-2.0-dropbear_2014.63\x0D\x0A\x00\x00\x02T\x06\x14I\xC3\x09\&#xa;xEE\xB6Sxk\x9Dd\xE54\xB6\xC6\xADZ\x00\x00\x00\xA6curve25519-sha256@l...&#xa;"/></port>
+<port protocol="tcp" portid="23"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="telnet" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="http" product="BusyBox httpd" version="1.13" ostype="Linux" method="probed" conf="10"><cpe>cpe:/a:busybox:busybox:1.13</cpe><cpe>cpe:/o:linux:linux_kernel</cpe></service></port>
+<port protocol="tcp" portid="102"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="iso-tsap" method="table" conf="3"/></port>
+<port protocol="tcp" portid="135"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="msrpc" method="table" conf="3"/></port>
+<port protocol="tcp" portid="139"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="netbios-ssn" method="table" conf="3"/></port>
+<port protocol="tcp" portid="443"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="https" method="table" conf="3"/></port>
+<port protocol="tcp" portid="445"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="microsoft-ds" method="table" conf="3"/></port>
+<port protocol="tcp" portid="502"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="mbap" method="table" conf="3"/></port>
+<port protocol="tcp" portid="515"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="printer" method="table" conf="3"/></port>
+<port protocol="tcp" portid="554"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="rtsp" method="table" conf="3"/></port>
+<port protocol="tcp" portid="631"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="ipp" method="table" conf="3"/></port>
+<port protocol="tcp" portid="1433"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="ms-sql-s" method="table" conf="3"/></port>
+<port protocol="tcp" portid="1883"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="mqtt" method="table" conf="3"/></port>
+<port protocol="tcp" portid="2222"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="EtherNetIP-1" method="table" conf="3"/></port>
+<port protocol="tcp" portid="3306"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="mysql" method="table" conf="3"/></port>
+<port protocol="tcp" portid="3389"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="ms-wbt-server" method="table" conf="3"/></port>
+<port protocol="tcp" portid="4840"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="opcua-tcp" method="table" conf="3"/></port>
+<port protocol="tcp" portid="5900"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="vnc" method="table" conf="3"/></port>
+<port protocol="tcp" portid="8000"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="http-alt" method="table" conf="3"/></port>
+<port protocol="tcp" portid="8080"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="http-proxy" method="table" conf="3"/></port>
+<port protocol="tcp" portid="9100"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="jetdirect" method="table" conf="3"/></port>
+<port protocol="tcp" portid="20000"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="dnp" method="table" conf="3"/></port>
+<port protocol="tcp" portid="34964"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="profinet-cm" method="table" conf="3"/></port>
+<port protocol="tcp" portid="37777"><state state="filtered" reason="no-response" reason_ttl="0"/></port>
+<port protocol="tcp" portid="44818"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="EtherNetIP-2" method="table" conf="3"/></port>
+</ports>
+<times srtt="9286" rttvar="18304" to="100000"/>
+</host>
+<runstats><finished time="1793222655" timestr="Wed Oct 28 15:24:15 2026" summary="Nmap done at Wed Oct 28 15:24:15 2026; 1 IP address (1 host up) scanned in 18.95 seconds" elapsed="18.95" exit="success"/><hosts up="1" down="0" total="1"/>
+</runstats>
+</nmaprun>

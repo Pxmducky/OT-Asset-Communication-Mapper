@@ -29,7 +29,12 @@ _BOGUS_OS = {"virtualbox", "slirp", "qemu", "voip adapter", "bridge", "embedded"
 # Identificaciones por texto (banner/cert/producto): (keywords, types, weight, group, label, is_service)
 _TEXT_IDS = [
     (("mguard", "phoenix contact", "phoenix-contact", "innominate"), ("mguard",), 80, "mguard", "mGuard (Phoenix Contact)", True),
-    (("wincc", "simatic hmi", "comfort panel", "unified panel", "operator panel", "ktp", "tp700", "tp900"), ("hmi",), 80, "hmi_id", "HMI Siemens (WinCC/Panel)", False),
+    # --- HMI: runtimes y paneles de operador (evidencia fuerte de HMI) ---
+    (("wincc runtime", "wincc rt", "wincc", "simatic hmi", "comfort panel", "unified panel",
+      "operator panel", "panelview", "factorytalk view", "pro-face", "proface", "gp-pro",
+      "weintek", "beijer", "movicon", "ix runtime", "intouch", "ktp", "tp700", "tp900",
+      "tp1200", "tp1500"),
+     ("hmi",), 82, "hmi_id", "Runtime / Panel HMI", False),
     (("jetdirect", "laserjet", "ipp", "cups", "kyocera", "lexmark", "ricoh", "xerox", "zebra", "printer"), ("printers",), 78, "printer_id", "Impresora", False),
     (("hikvision", "dahua", "axis communications", "hanwha", "pelco", "ip camera", "nvr", "dvr"), ("camera",), 78, "camera_id", "Cámara IP", False),
     (("fanuc", "kuka", "motoman", "yaskawa", "staubli", "abb robot", "irc5", "r-30i"), ("robot",), 78, "robot_id", "Robot", False),
