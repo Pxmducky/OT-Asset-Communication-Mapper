@@ -40,6 +40,21 @@ class Asset(Base):
     confidence: Mapped[int | None] = mapped_column(Integer, nullable=True)  # 0-100; null en alta manual/Excel
     discovery_source: Mapped[str] = mapped_column(String(20), nullable=False, default="manual")  # manual | excel | scan
     last_seen: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    import_id: Mapped[int | None] = mapped_column(Integer, nullable=True, index=True)
+    network_id: Mapped[int | None] = mapped_column(Integer, nullable=True, index=True)
+    network = relationship(
+        "AllowedNetwork",
+        primaryjoin="foreign(Asset.network_id) == AllowedNetwork.id",
+        viewonly=True,
+        lazy="selectin",
+    )
+
+    @property
+    def segment(self) -> str | None:
+        net = self.network
+        if net is None:
+            return None
+        return f"{net.description} · {net.cidr}" if net.description else net.cidr
     os: Mapped[str | None] = mapped_column(String(255), nullable=True)
 
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, nullable=False)

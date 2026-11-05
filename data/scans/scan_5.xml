@@ -1,48 +1,88 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE nmaprun>
 <?xml-stylesheet href="file:///usr/share/nmap/nmap.xsl" type="text/xsl"?>
-<!-- Nmap 7.99 scan initiated Tue Oct  6 14:15:25 2026 as: /usr/lib/nmap/nmap -&#45;privileged -sS -sV -O -T3 -&#45;max-rate 80 -p 80,443,135,139,445,3389,1433,3306 -&#45;script smb-os-discovery,http-title -oX - 172.16.99.7/32 -->
-<nmaprun scanner="nmap" args="/usr/lib/nmap/nmap -&#45;privileged -sS -sV -O -T3 -&#45;max-rate 80 -p 80,443,135,139,445,3389,1433,3306 -&#45;script smb-os-discovery,http-title -oX - 172.16.99.7/32" start="1791317725" startstr="Tue Oct  6 14:15:25 2026" version="7.99" xmloutputversion="1.05">
-<scaninfo type="syn" protocol="tcp" numservices="8" services="80,135,139,443,445,1433,3306,3389"/>
+<!-- Nmap 7.99 scan initiated Wed Nov  4 12:25:29 2026 as: /usr/lib/nmap/nmap -&#45;privileged -sS -sV -&#45;version-light -T2 -&#45;reason -&#45;max-rate 30 -p 21,22,23,80,102,135,139,443,445,502,515,554,631,1433,1883,2222,3306,3389,4840,5900,8000,8080,8443,9100,1194,20000,34964,37777,44818 -&#45;script banner,http-title,http-headers,ssl-cert,smb-os-discovery,s7-info,modbus-discover,enip-info,rtsp-methods -oX - 172.16.99.199/32 -->
+<nmaprun scanner="nmap" args="/usr/lib/nmap/nmap -&#45;privileged -sS -sV -&#45;version-light -T2 -&#45;reason -&#45;max-rate 30 -p 21,22,23,80,102,135,139,443,445,502,515,554,631,1433,1883,2222,3306,3389,4840,5900,8000,8080,8443,9100,1194,20000,34964,37777,44818 -&#45;script banner,http-title,http-headers,ssl-cert,smb-os-discovery,s7-info,modbus-discover,enip-info,rtsp-methods -oX - 172.16.99.199/32" start="1793816729" startstr="Wed Nov  4 12:25:29 2026" version="7.99" xmloutputversion="1.05">
+<scaninfo type="syn" protocol="tcp" numservices="29" services="21-23,80,102,135,139,443,445,502,515,554,631,1194,1433,1883,2222,3306,3389,4840,5900,8000,8080,8443,9100,20000,34964,37777,44818"/>
 <verbose level="0"/>
 <debugging level="0"/>
 <hosthint><status state="up" reason="unknown-response" reason_ttl="0"/>
-<address addr="172.16.99.7" addrtype="ipv4"/>
+<address addr="172.16.99.199" addrtype="ipv4"/>
 <hostnames>
 </hostnames>
 </hosthint>
-<host starttime="1791317725" endtime="1791317775"><status state="up" reason="echo-reply" reason_ttl="255"/>
-<address addr="172.16.99.7" addrtype="ipv4"/>
+<host starttime="1793816732" endtime="1793817037"><status state="up" reason="echo-reply" reason_ttl="255"/>
+<address addr="172.16.99.199" addrtype="ipv4"/>
 <hostnames>
-<hostname name="MESDASPMMSRV03.bocar.com" type="PTR"/>
 </hostnames>
-<ports><port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="http" product="Microsoft HTTPAPI httpd" version="2.0" extrainfo="SSDP/UPnP" ostype="Windows" method="probed" conf="10"><cpe>cpe:/o:microsoft:windows</cpe></service><script id="http-server-header" output="Microsoft-HTTPAPI/2.0"><elem>Microsoft-HTTPAPI/2.0</elem>
+<ports><extraports state="closed" count="26">
+<extrareasons reason="reset" count="26" proto="tcp" ports="21-23,102,135,139,445,502,515,554,631,1194,1883,2222,3306,3389,4840,5900,8000,8080,8443,9100,20000,34964,37777,44818"/>
+</extraports>
+<port protocol="tcp" portid="80"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="http" method="table" conf="3"/></port>
+<port protocol="tcp" portid="443"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="http" product="thttpd" tunnel="ssl" method="probed" conf="10"><cpe>cpe:/a:acme:thttpd</cpe></service><script id="ssl-cert" output="Subject: commonName=00_05_B6_05_13_84/organizationName=INSYS Microelectronics GmbH/stateOrProvinceName=Bayern/countryName=DE&#xa;Subject Alternative Name: email:insys@insys-tec.de&#xa;Issuer: commonName=INSYS Microelectronics GmbH/organizationName=INSYS Microelectronics GmbH/stateOrProvinceName=Bayern/countryName=DE&#xa;Public Key type: rsa&#xa;Public Key bits: 1024&#xa;Signature Algorithm: sha1WithRSAEncryption&#xa;Not valid before: 2013-05-29T09:15:32&#xa;Not valid after:  2023-05-17T09:15:32&#xa;MD5:     2080 387c d683 99fa c97e e474 fe1a 6f8b&#xa;SHA-1:   7de4 0072 e1fe ec13 e9e2 206d 9d9e 3838 e03a 0267&#xa;SHA-256: a2e5 ee48 a4f8 4892 141a 3c04 767e 4e20 ffa5 8479 7b5a bed0 74b2 b837 b151 40a7"><table key="subject">
+<elem key="commonName">00_05_B6_05_13_84</elem>
+<elem key="countryName">DE</elem>
+<elem key="emailAddress">insys@insys-tec.de</elem>
+<elem key="localityName">Regensburg</elem>
+<elem key="organizationName">INSYS Microelectronics GmbH</elem>
+<elem key="organizationalUnitName">MoRoS</elem>
+<elem key="stateOrProvinceName">Bayern</elem>
+</table>
+<table key="issuer">
+<elem key="commonName">INSYS Microelectronics GmbH</elem>
+<elem key="countryName">DE</elem>
+<elem key="emailAddress">insys@insys-tec.de</elem>
+<elem key="localityName">Regensburg</elem>
+<elem key="organizationName">INSYS Microelectronics GmbH</elem>
+<elem key="organizationalUnitName">MoRoS</elem>
+<elem key="stateOrProvinceName">Bayern</elem>
+</table>
+<table key="pubkey">
+<elem key="type">rsa</elem>
+<elem key="bits">1024</elem>
+<elem key="modulus">BD60E002A2EE3325F763CDD8C52A2BC9CF50286A667B6886946C571768489DFF3227B93D975B4C20589554FF49E5C70D54F50D47242914DAC6C130E9E8469ED14C2FC01993E8F49C026FAF984B9E7D818AB0CB6DD1415811546D43D28D4E209CBC28C9272994BC45687A95A395248FD1367E1B3AD0001BBBE65BA347BD4218AF</elem>
+<elem key="exponent">65537</elem>
+</table>
+<table key="extensions">
+<table>
+<elem key="name">X509v3 Basic Constraints</elem>
+<elem key="value">CA:FALSE</elem>
+</table>
+<table>
+<elem key="name">Netscape Cert Type</elem>
+<elem key="value">SSL Server</elem>
+</table>
+<table>
+<elem key="name">X509v3 Subject Key Identifier</elem>
+<elem key="value">A1:73:E5:0C:66:01:2A:88:CB:D9:08:E3:82:5E:8D:41:31:1F:34:6F</elem>
+</table>
+<table>
+<elem key="name">X509v3 Authority Key Identifier</elem>
+<elem key="value">keyid:C5:9E:A4:D4:1D:00:6E:FE:A6:68:FA:99:92:06:18:44:03:F5:C5:85&#xa;DirName:/C=DE/ST=Bayern/L=Regensburg/O=INSYS Microelectronics GmbH/OU=MoRoS/CN=INSYS Microelectronics GmbH/emailAddress=insys@insys-tec.de&#xa;serial:E9:B5:1C:F8:CF:EE:78:0E</elem>
+</table>
+<table>
+<elem key="name">X509v3 Issuer Alternative Name</elem>
+<elem key="value">email:insys@insys-tec.de</elem>
+</table>
+<table>
+<elem key="name">X509v3 Subject Alternative Name</elem>
+<elem key="value">email:insys@insys-tec.de</elem>
+</table>
+</table>
+<elem key="sig_algo">sha1WithRSAEncryption</elem>
+<table key="validity">
+<elem key="notBefore">2013-05-29T09:15:32</elem>
+<elem key="notAfter">2023-05-17T09:15:32</elem>
+</table>
+<elem key="md5">2080387cd68399fac97ee474fe1a6f8b</elem>
+<elem key="sha1">7de40072e1feec13e9e2206d9d9e3838e03a0267</elem>
+<elem key="sha256">a2e5ee48a4f84892141a3c04767e4e20ffa584797b5abed074b2b837b15140a7</elem>
+<elem key="pem">-&#45;&#45;&#45;&#45;BEGIN CERTIFICATE-&#45;&#45;&#45;&#45;&#xa;MIIEPjCCA6egAwIBAgICXRswDQYJKoZIhvcNAQEFBQAwgbIxCzAJBgNVBAYTAkRF&#xa;MQ8wDQYDVQQIEwZCYXllcm4xEzARBgNVBAcTClJlZ2Vuc2J1cmcxJDAiBgNVBAoT&#xa;G0lOU1lTIE1pY3JvZWxlY3Ryb25pY3MgR21iSDEOMAwGA1UECxMFTW9Sb1MxJDAi&#xa;BgNVBAMTG0lOU1lTIE1pY3JvZWxlY3Ryb25pY3MgR21iSDEhMB8GCSqGSIb3DQEJ&#xa;ARYSaW5zeXNAaW5zeXMtdGVjLmRlMB4XDTEzMDUyOTA5MTUzMloXDTIzMDUxNzA5&#xa;MTUzMlowgagxCzAJBgNVBAYTAkRFMQ8wDQYDVQQIEwZCYXllcm4xEzARBgNVBAcT&#xa;ClJlZ2Vuc2J1cmcxJDAiBgNVBAoTG0lOU1lTIE1pY3JvZWxlY3Ryb25pY3MgR21i&#xa;SDEOMAwGA1UECxMFTW9Sb1MxGjAYBgNVBAMUETAwXzA1X0I2XzA1XzEzXzg0MSEw&#xa;HwYJKoZIhvcNAQkBFhJpbnN5c0BpbnN5cy10ZWMuZGUwgZ8wDQYJKoZIhvcNAQEB&#xa;BQADgY0AMIGJAoGBAL1g4AKi7jMl92PN2MUqK8nPUChqZntohpRsVxdoSJ3/Mie5&#xa;PZdbTCBYlVT/SeXHDVT1DUckKRTaxsEw6ehGntFML8AZk+j0nAJvr5hLnn2BirDL&#xa;bdFBWBFUbUPSjU4gnLwoyScplLxFaHqVo5Ukj9E2fhs60AAbu+Zbo0e9QhivAgMB&#xa;AAGjggFpMIIBZTAJBgNVHRMEAjAAMBEGCWCGSAGG+EIBAQQEAwIGQDAdBgNVHQ4E&#xa;FgQUoXPlDGYBKojL2Qjjgl6NQTEfNG8wgecGA1UdIwSB3zCB3IAUxZ6k1B0Abv6m&#xa;aPqZkgYYRAP1xYWhgbikgbUwgbIxCzAJBgNVBAYTAkRFMQ8wDQYDVQQIEwZCYXll&#xa;cm4xEzARBgNVBAcTClJlZ2Vuc2J1cmcxJDAiBgNVBAoTG0lOU1lTIE1pY3JvZWxl&#xa;Y3Ryb25pY3MgR21iSDEOMAwGA1UECxMFTW9Sb1MxJDAiBgNVBAMTG0lOU1lTIE1p&#xa;Y3JvZWxlY3Ryb25pY3MgR21iSDEhMB8GCSqGSIb3DQEJARYSaW5zeXNAaW5zeXMt&#xa;dGVjLmRlggkA6bUc+M/ueA4wHQYDVR0SBBYwFIESaW5zeXNAaW5zeXMtdGVjLmRl&#xa;MB0GA1UdEQQWMBSBEmluc3lzQGluc3lzLXRlYy5kZTANBgkqhkiG9w0BAQUFAAOB&#xa;gQAJwSq+E+K3Nu3snfrsV7u0cKnLVPfDVHt1nPVhIWz7U5cgBy+dExA6/M3lvj4K&#xa;j6lzb1iMldhtYTASCJByp+KSSHWwolTP1iQDc4iB3qkLpt+TiKNKaqnogXHokBQa&#xa;uR5n08kYm2uE4K9SCCiIlSxNxiUpLewDaxbGnq8AywUo1w==&#xa;-&#45;&#45;&#45;&#45;END CERTIFICATE-&#45;&#45;&#45;&#45;&#xa;</elem>
 </script></port>
-<port protocol="tcp" portid="135"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="msrpc" product="Microsoft Windows RPC" ostype="Windows" method="probed" conf="10"><cpe>cpe:/o:microsoft:windows</cpe></service></port>
-<port protocol="tcp" portid="139"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="netbios-ssn" product="Microsoft Windows netbios-ssn" ostype="Windows" method="probed" conf="10"><cpe>cpe:/o:microsoft:windows</cpe></service></port>
-<port protocol="tcp" portid="443"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="https" method="table" conf="3"/></port>
-<port protocol="tcp" portid="445"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="microsoft-ds" method="table" conf="3"/></port>
 <port protocol="tcp" portid="1433"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="ms-sql-s" method="table" conf="3"/></port>
-<port protocol="tcp" portid="3306"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="mysql" method="table" conf="3"/></port>
-<port protocol="tcp" portid="3389"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="ms-wbt-server" method="table" conf="3"/></port>
 </ports>
-<os><portused state="open" proto="tcp" portid="80"/>
-<osmatch name="Oracle Virtualbox Slirp NAT bridge" accuracy="98" line="99982">
-<osclass type="bridge" vendor="Oracle" osfamily="Virtualbox" accuracy="98"><cpe>cpe:/o:oracle:virtualbox</cpe></osclass>
-<osclass type="bridge" vendor="Slirp" osfamily="Slirp" accuracy="98"><cpe>cpe:/a:danny_gasparovski:slirp</cpe></osclass>
-</osmatch>
-<osmatch name="AT&amp;T BGW210 voice gateway" accuracy="95" line="10195">
-<osclass type="VoIP adapter" vendor="AT&amp;T" osfamily="embedded" accuracy="95"/>
-</osmatch>
-<osmatch name="QEMU user mode network gateway" accuracy="94" line="101823">
-<osclass type="general purpose" vendor="QEMU" osfamily="QEMU" accuracy="94"><cpe>cpe:/a:qemu:qemu</cpe></osclass>
-</osmatch>
-</os>
-<tcpsequence index="17" difficulty="Good luck!" values="1CF9F801,1CFAF201,1CFCE601,1CFEDA01,1D00CE01,1D02C201"/>
-<ipidsequence class="Incremental" values="4718,4719,471A,471C,471E,4720"/>
-<tcptssequence class="none returned (unsupported)"/>
-<times srtt="2961" rttvar="3508" to="100000"/>
+<times srtt="4677" rttvar="4444" to="400000"/>
 </host>
-<runstats><finished time="1791317775" timestr="Tue Oct  6 14:16:15 2026" summary="Nmap done at Tue Oct  6 14:16:15 2026; 1 IP address (1 host up) scanned in 50.12 seconds" elapsed="50.12" exit="success"/><hosts up="1" down="0" total="1"/>
+<runstats><finished time="1793817037" timestr="Wed Nov  4 12:30:37 2026" summary="Nmap done at Wed Nov  4 12:30:37 2026; 1 IP address (1 host up) scanned in 307.88 seconds" elapsed="307.88" exit="success"/><hosts up="1" down="0" total="1"/>
 </runstats>
 </nmaprun>

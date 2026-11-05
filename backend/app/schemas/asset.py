@@ -105,6 +105,7 @@ class AssetResponse(BaseModel):
     plant: str | None = None
     building: str | None = None
     production_line: str | None = None
+    segment: str | None = None
 
     os: str | None = None
     status: str | None = None

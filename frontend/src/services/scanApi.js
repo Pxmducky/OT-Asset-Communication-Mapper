@@ -13,9 +13,8 @@ export const networkApi = {
   list: async () => (await api.get("/networks")).data,
   add: async (payload) => (await api.post("/networks", payload)).data,
   update: async (id, payload) => (await api.patch(`/networks/${id}`, payload)).data,
-  remove: async (id) => {
-    await api.delete(`/networks/${id}`);
-  },
+  remove: async (id) => (await api.delete(`/networks/${id}`)).data,
+  reassign: async () => (await api.post("/networks/reassign")).data,
 };
 
 
@@ -52,4 +51,5 @@ export const backupApi = {
     link.click();
     URL.revokeObjectURL(url);
   },
+  resetInventory: async () => (await api.delete("/inventory", { params: { confirm: "BORRAR" } })).data,
 };

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE nmaprun>
+<?xml-stylesheet href="file:///usr/share/nmap/nmap.xsl" type="text/xsl"?>
+<!-- Nmap 7.99 scan initiated Wed Oct 28 17:00:30 2026 as: /usr/lib/nmap/nmap -&#45;privileged -sS -sV -&#45;version-light -T2 -&#45;reason -&#45;max-rate 30 -p 80,443,1194 -&#45;script banner,http-title,ssl-cert -oX - 172.16.99.243/32 -->
+<nmaprun scanner="nmap" args="/usr/lib/nmap/nmap -&#45;privileged -sS -sV -&#45;version-light -T2 -&#45;reason -&#45;max-rate 30 -p 80,443,1194 -&#45;script banner,http-title,ssl-cert -oX - 172.16.99.243/32" start="1793228430" startstr="Wed Oct 28 17:00:30 2026" version="7.99" xmloutputversion="1.05">
+<scaninfo type="syn" protocol="tcp" numservices="3" services="80,443,1194"/>
+<verbose level="0"/>
+<debugging level="0"/>
+<hosthint><status state="up" reason="unknown-response" reason_ttl="0"/>
+<address addr="172.16.99.243" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+</hosthint>
+<host starttime="1793228437" endtime="1793228440"><status state="up" reason="reset" reason_ttl="255"/>
+<address addr="172.16.99.243" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="80"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="http" method="table" conf="3"/></port>
+<port protocol="tcp" portid="443"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="https" method="table" conf="3"/></port>
+<port protocol="tcp" portid="1194"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="openvpn" method="table" conf="3"/></port>
+</ports>
+<times srtt="1376" rttvar="5000" to="400000"/>
+</host>
+<runstats><finished time="1793228440" timestr="Wed Oct 28 17:00:40 2026" summary="Nmap done at Wed Oct 28 17:00:40 2026; 1 IP address (1 host up) scanned in 10.26 seconds" elapsed="10.26" exit="success"/><hosts up="1" down="0" total="1"/>
+</runstats>
+</nmaprun>

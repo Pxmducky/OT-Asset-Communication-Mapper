@@ -58,6 +58,9 @@ export const excelApi = {
     link.click();
     URL.revokeObjectURL(url);
   },
+  listImports: async () => (await api.get("/excel/imports")).data,
+  deleteImport: async (id) => (await api.delete(`/excel/imports/${id}`)).data,
+  deleteLegacy: async () => (await api.delete("/excel/imports/legacy")).data,
 };
 
 export default api;

@@ -68,9 +68,20 @@ export default function NetworkManager({ networks, onChanged, onInfo, onError })
   }
 
   async function remove(id) {
-    if (!window.confirm("¿Quitar esta red de las autorizadas?")) return;
+    if (!window.confirm("¿Quitar esta red de las autorizadas?\n\nLos activos de este segmento perderán la planta, nave, línea y VLAN que venían de él.")) return;
     try {
-      await networkApi.remove(id);
+      const r = await networkApi.remove(id);
+      onInfo?.(`Red eliminada. ${r.assets_released ?? 0} activos actualizados.`);
+      onChanged?.();
+    } catch (e) {
+      onError?.(getErrorMessage(e));
+    }
+  }
+
+  async function reassign() {
+    try {
+      const r = await networkApi.reassign();
+      onInfo?.(`Segmentos aplicados. ${r.assets_updated} activos actualizados.`);
       onChanged?.();
     } catch (e) {
       onError?.(getErrorMessage(e));
@@ -93,11 +104,13 @@ export default function NetworkManager({ networks, onChanged, onInfo, onError })
         <button type="submit" className="button primary">
           + Agregar red
         </button>
+        <button type="button" className="button secondary" onClick={reassign}>
+          ↻ Aplicar segmentos a los activos
+        </button>
       </form>
 
       <p className="scan-hint">
-        La ubicación (planta/nave/línea/VLAN) es opcional. Los equipos nuevos que se descubran
-        en esta red la heredan automáticamente.
+      La ubicación (planta/nave/línea/VLAN) es opcional. Los activos cuya IP cae en esta red, ya sean importados de Excel o descubiertos por escaneo, la heredan automáticamente.
       </p>
 
       <ul className="scan-net-list">

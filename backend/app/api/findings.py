@@ -52,9 +52,11 @@ def apply_finding(finding_id: int, db: Session = Depends(get_db)):
 @router.post("/findings/{finding_id}/discard", response_model=dict)
 def discard_finding(finding_id: int, db: Session = Depends(get_db)):
     finding = _get_finding_or_404(finding_id, db)
-    finding.status = "discarded"
+    if finding.applied:
+        raise HTTPException(status_code=400, detail="El hallazgo ya fue aprobado.")
+    db.delete(finding)
     db.commit()
-    return {"finding_id": finding.id, "status": finding.status}
+    return {"finding_id": finding_id, "status": "deleted"}
 
 
 @router.post("/findings/{finding_id}/reclassify", response_model=dict)

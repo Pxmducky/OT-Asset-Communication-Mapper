@@ -8,6 +8,9 @@ const REASON_LABEL = {
   "pre-apply": "Antes de aplicar",
   "pre-restore": "Antes de restaurar",
   manual: "Manual",
+  "pre-reset": "Antes de borrar todo",
+  "pre-excel-import": "Antes de importar Excel",
+  "pre-excel-delete": "Antes de borrar importación",
 };
 
 function formatSize(bytes) {
@@ -88,7 +91,30 @@ export default function BackupsPanel({ onDataChanged }) {
       setBusy(false);
     }
   }
-
+  async function resetInventory() {
+    const typed = window.prompt(
+      "Se borrarán TODOS los activos (Excel, escaneos y manuales), comunicaciones, escaneos y hallazgos.\n" +
+        "Se conservan agentes, redes permitidas y respaldos. Se hará un respaldo antes.\n\n" +
+        "Escribe BORRAR para confirmar:",
+    );
+    if (typed !== "BORRAR") return;
+    setBusy(true);
+    setError(null);
+    setInfo(null);
+    try {
+      const r = await backupApi.resetInventory();
+      setInfo(
+        `Inventario borrado: ${r.deleted.assets} activos, ${r.deleted.communications} comunicaciones y ${r.deleted.scans} escaneos. ` +
+          "Puedes recuperarlo restaurando el respaldo «Antes de borrar todo».",
+      );
+      await load();
+      onDataChanged?.();
+    } catch (e) {
+      setError(getErrorMessage(e));
+    } finally {
+      setBusy(false);
+    }
+  }
   return (
     <div className="backups-panel">
       {error && <div className="scan-msg error">{error}</div>}
@@ -100,6 +126,9 @@ export default function BackupsPanel({ onDataChanged }) {
         </p>
         <button type="button" className="button primary" disabled={busy} onClick={createManual}>
           + Respaldo manual
+        </button>
+        <button type="button" className="button danger" disabled={busy} onClick={resetInventory}>
+          🗑 Borrar todo el inventario
         </button>
       </div>
 

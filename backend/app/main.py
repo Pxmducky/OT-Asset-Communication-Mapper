@@ -17,6 +17,7 @@ from app.api.findings import router as findings_router
 from app.api.asset_services import router as asset_services_router
 from app.api.backups import router as backups_router
 from app.api.networks import router as networks_router
+from app.api.inventory import router as inventory_router
 
 # CORS_ORIGINS=http://localhost:5173,http://192.168.1.50:5173
 CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173").split(",")
@@ -54,6 +55,7 @@ app.add_middleware(
 )
 
 app.include_router(assets_router)
+app.include_router(inventory_router)
 app.include_router(communications_router)
 app.include_router(graph_router)
 app.include_router(excel_router)

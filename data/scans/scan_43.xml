@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE nmaprun>
+<?xml-stylesheet href="file:///usr/share/nmap/nmap.xsl" type="text/xsl"?>
+<!-- Nmap 7.99 scan initiated Wed Oct 28 16:47:52 2026 as: /usr/lib/nmap/nmap -&#45;privileged -sS -sV -&#45;version-light -T2 -&#45;reason -&#45;max-rate 30 -p 21,22,23,80,102,135,139,443,445,502,515,554,631,1433,1883,2222,3306,3389,4840,5900,8000,8080,8443,9100,1194,20000,34964,37777,44818 -&#45;script banner,http-title,http-headers,ssl-cert,smb-os-discovery,s7-info,modbus-discover,enip-info,rtsp-methods -oX - 172.16.152.9/32 -->
+<nmaprun scanner="nmap" args="/usr/lib/nmap/nmap -&#45;privileged -sS -sV -&#45;version-light -T2 -&#45;reason -&#45;max-rate 30 -p 21,22,23,80,102,135,139,443,445,502,515,554,631,1433,1883,2222,3306,3389,4840,5900,8000,8080,8443,9100,1194,20000,34964,37777,44818 -&#45;script banner,http-title,http-headers,ssl-cert,smb-os-discovery,s7-info,modbus-discover,enip-info,rtsp-methods -oX - 172.16.152.9/32" start="1793227672" startstr="Wed Oct 28 16:47:52 2026" version="7.99" xmloutputversion="1.05">
+<scaninfo type="syn" protocol="tcp" numservices="29" services="21-23,80,102,135,139,443,445,502,515,554,631,1194,1433,1883,2222,3306,3389,4840,5900,8000,8080,8443,9100,20000,34964,37777,44818"/>
+<verbose level="0"/>
+<debugging level="0"/>
+<hosthint><status state="up" reason="unknown-response" reason_ttl="0"/>
+<address addr="172.16.152.9" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+</hosthint>
+<host starttime="1793227673" endtime="1793227995"><status state="up" reason="echo-reply" reason_ttl="255"/>
+<address addr="172.16.152.9" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="21"><state state="closed" reason="reset" reason_ttl="64"/><service name="ftp" method="table" conf="3"/></port>
+<port protocol="tcp" portid="22"><state state="closed" reason="reset" reason_ttl="64"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="23"><state state="closed" reason="reset" reason_ttl="64"/><service name="telnet" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="http" product="Apache httpd" method="probed" conf="10"><cpe>cpe:/a:apache:http_server</cpe></service></port>
+<port protocol="tcp" portid="102"><state state="closed" reason="reset" reason_ttl="64"/><service name="iso-tsap" method="table" conf="3"/></port>
+<port protocol="tcp" portid="135"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="msrpc" method="table" conf="3"/></port>
+<port protocol="tcp" portid="139"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="netbios-ssn" method="table" conf="3"/></port>
+<port protocol="tcp" portid="443"><state state="closed" reason="reset" reason_ttl="64"/><service name="https" method="table" conf="3"/></port>
+<port protocol="tcp" portid="445"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="microsoft-ds" method="table" conf="3"/></port>
+<port protocol="tcp" portid="502"><state state="closed" reason="reset" reason_ttl="64"/><service name="mbap" method="table" conf="3"/></port>
+<port protocol="tcp" portid="515"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="printer" method="probed" conf="10"/></port>
+<port protocol="tcp" portid="554"><state state="closed" reason="reset" reason_ttl="64"/><service name="rtsp" method="table" conf="3"/></port>
+<port protocol="tcp" portid="631"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="ipp" product="CUPS" version="1.5" method="probed" conf="10"><cpe>cpe:/a:apple:cups:1.5</cpe></service></port>
+<port protocol="tcp" portid="1194"><state state="closed" reason="reset" reason_ttl="64"/><service name="openvpn" method="table" conf="3"/></port>
+<port protocol="tcp" portid="1433"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="ms-sql-s" method="table" conf="3"/></port>
+<port protocol="tcp" portid="1883"><state state="closed" reason="reset" reason_ttl="64"/><service name="mqtt" method="table" conf="3"/></port>
+<port protocol="tcp" portid="2222"><state state="closed" reason="reset" reason_ttl="64"/><service name="EtherNetIP-1" method="table" conf="3"/></port>
+<port protocol="tcp" portid="3306"><state state="closed" reason="reset" reason_ttl="64"/><service name="mysql" method="table" conf="3"/></port>
+<port protocol="tcp" portid="3389"><state state="closed" reason="reset" reason_ttl="64"/><service name="ms-wbt-server" method="table" conf="3"/></port>
+<port protocol="tcp" portid="4840"><state state="closed" reason="reset" reason_ttl="64"/><service name="opcua-tcp" method="table" conf="3"/></port>
+<port protocol="tcp" portid="5900"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="vnc" product="VNC" extrainfo="protocol 3.8" method="probed" conf="10"/><script id="banner" output="RFB 003.008"/></port>
+<port protocol="tcp" portid="8000"><state state="closed" reason="reset" reason_ttl="64"/><service name="http-alt" method="table" conf="3"/></port>
+<port protocol="tcp" portid="8080"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="http" product="Apache httpd" method="probed" conf="10"><cpe>cpe:/a:apache:http_server</cpe></service></port>
+<port protocol="tcp" portid="8443"><state state="closed" reason="reset" reason_ttl="64"/><service name="https-alt" method="table" conf="3"/></port>
+<port protocol="tcp" portid="9100"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="jetdirect" method="table" conf="3"/></port>
+<port protocol="tcp" portid="20000"><state state="closed" reason="reset" reason_ttl="64"/><service name="dnp" method="table" conf="3"/></port>
+<port protocol="tcp" portid="34964"><state state="closed" reason="reset" reason_ttl="64"/><service name="profinet-cm" method="table" conf="3"/></port>
+<port protocol="tcp" portid="37777"><state state="closed" reason="reset" reason_ttl="64"/></port>
+<port protocol="tcp" portid="44818"><state state="closed" reason="reset" reason_ttl="64"/><service name="EtherNetIP-2" method="table" conf="3"/></port>
+</ports>
+<times srtt="40315" rttvar="7290" to="400000"/>
+</host>
+<runstats><finished time="1793227995" timestr="Wed Oct 28 16:53:15 2026" summary="Nmap done at Wed Oct 28 16:53:15 2026; 1 IP address (1 host up) scanned in 323.31 seconds" elapsed="323.31" exit="success"/><hosts up="1" down="0" total="1"/>
+</runstats>
+</nmaprun>

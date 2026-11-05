@@ -22,6 +22,7 @@ export const ASSET_TYPES = [
     { value: "scada", label: "SCADA / OPC" },
     { value: "ups", label: "UPS / PDU" },
     { value: "ewon", label: "Ewon" },
+    { value: "insys", label: "INSYS / Gateway remoto" },
     { value: "mguard", label: "mGuard" },
     { value: "unknown", label: "Desconocido" },
   ];
@@ -50,6 +51,7 @@ export const ASSET_TYPES = [
     scada: "#0284c7",
     ups: "#84cc16",
     ewon: "#f43f5e",
+    insys: "#e11d48",
     mguard: "#dc2626",
     unknown: "#475569",
   };
@@ -66,6 +68,7 @@ export const ASSET_TYPES = [
   ];
   
   export const GROUP_MODES = [
+    { value: "segment", label: "Segmento de red" },
     { value: "location", label: "Planta / Nave / Línea" },
     { value: "plant", label: "Planta" },
     { value: "vlan", label: "VLAN" },

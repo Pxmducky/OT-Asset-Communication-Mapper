@@ -8,3 +8,5 @@ class ExcelImportResponse(BaseModel):
     communications_skipped: int
     rows_skipped: int
     errors: list[str]
+    import_id: int | None = None
+    notes: list[str] = []

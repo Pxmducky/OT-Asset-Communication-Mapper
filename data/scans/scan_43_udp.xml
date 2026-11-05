@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE nmaprun>
+<?xml-stylesheet href="file:///usr/share/nmap/nmap.xsl" type="text/xsl"?>
+<!-- Nmap 7.99 scan initiated Wed Oct 28 16:53:15 2026 as: /usr/lib/nmap/nmap -&#45;privileged -sU -sV -T2 -&#45;reason -&#45;max-rate 15 -p 161,47808 -&#45;script snmp-info -oX - 172.16.152.9/32 -->
+<nmaprun scanner="nmap" args="/usr/lib/nmap/nmap -&#45;privileged -sU -sV -T2 -&#45;reason -&#45;max-rate 15 -p 161,47808 -&#45;script snmp-info -oX - 172.16.152.9/32" start="1793227995" startstr="Wed Oct 28 16:53:15 2026" version="7.99" xmloutputversion="1.05">
+<scaninfo type="udp" protocol="udp" numservices="2" services="161,47808"/>
+<verbose level="0"/>
+<debugging level="0"/>
+<hosthint><status state="up" reason="unknown-response" reason_ttl="0"/>
+<address addr="172.16.152.9" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+</hosthint>
+<host starttime="1793227996" endtime="1793228132"><status state="up" reason="echo-reply" reason_ttl="255"/>
+<address addr="172.16.152.9" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="udp" portid="161"><state state="open" reason="udp-response" reason_ttl="64"/><service name="snmp" product="net-snmp; net-snmp SNMPv3 server" method="probed" conf="10"><cpe>cpe:/a:net-snmp:net-snmp</cpe></service><script id="snmp-info" output="&#xa;  enterprise: net-snmp&#xa;  engineIDFormat: unknown&#xa;  engineIDData: d098da546f365f5e&#xa;  snmpEngineBoots: 164&#xa;  snmpEngineTime: 3d13h52m58s"><elem key="enterprise">net-snmp</elem>
+<elem key="engineIDFormat">unknown</elem>
+<elem key="engineIDData">d098da546f365f5e</elem>
+<elem key="snmpEngineBoots">164</elem>
+<elem key="snmpEngineTime">3d13h52m58s</elem>
+</script></port>
+<port protocol="udp" portid="47808"><state state="open|filtered" reason="no-response" reason_ttl="0"/><service name="bacnet" method="table" conf="3"/></port>
+</ports>
+<times srtt="41894" rttvar="31727" to="400000"/>
+</host>
+<runstats><finished time="1793228132" timestr="Wed Oct 28 16:55:32 2026" summary="Nmap done at Wed Oct 28 16:55:32 2026; 1 IP address (1 host up) scanned in 137.46 seconds" elapsed="137.46" exit="success"/><hosts up="1" down="0" total="1"/>
+</runstats>
+</nmaprun>

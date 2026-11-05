@@ -65,7 +65,7 @@ export default function ScanPanel({ onDataChanged, assets }) {
           if (prev && prev !== s.status && (s.status === "completed" || s.status === "failed")) {
             if (s.status === "completed") {
               const sum = parseSummary(s.summary);
-              const extra = sum ? ` · nuevos ${sum.created}, actualizados ${sum.updated}, por revisar ${sum.review}` : "";
+              const extra = sum ? ` · pendientes de aprobación ${sum.pending ?? sum.review}, ya en inventario ${sum.matched ?? 0}` : "";
               const advice = sum?.advice ? `  ⚠ ${sum.advice}` : "";
               setInfo(`✓ Finalizado: ${s.scan_profile} ${s.target}${extra}${advice}`);
               completedSomething = true;
@@ -277,7 +277,7 @@ export default function ScanPanel({ onDataChanged, assets }) {
       )}
 
       {tab === "nets" && (
-        <NetworkManager networks={networks} onChanged={refreshNetworks} onInfo={setInfo} onError={setError} />
+        <NetworkManager networks={networks} onChanged={() => { refreshNetworks(); onDataChanged?.(); }} onInfo={setInfo} onError={setError} />
       )}
     </div>
   );

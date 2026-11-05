@@ -17,6 +17,9 @@ import NetworkMap from "../components/NetworkMap";
 import ReviewPanel from "../components/ReviewPanel";
 import ScanPanel from "../components/ScanPanel";
 import Toolbar from "../components/Toolbar";
+import ResizableWorkspace from "../components/ResizableWorkspace";
+import ExcelImportsPanel from "../components/ExcelImportsPanel";
+
 
 const SEARCH_FIELDS = [
   "asset_code", "asset_name", "asset_type", "ip", "mac", "hostname", "vendor",
@@ -31,7 +34,7 @@ function MapperPage() {
 
   const [selectedId, setSelectedId] = useState(null);
   const [centerRequest, setCenterRequest] = useState(null);
-  const [groupMode, setGroupMode] = useState("location");
+  const [groupMode, setGroupMode] = useState("segment");
   const [focusMode, setFocusMode] = useState(false);
   const [showLabels, setShowLabels] = useState(false);
   const [search, setSearch] = useState("");
@@ -45,6 +48,7 @@ function MapperPage() {
   const [showScan, setShowScan] = useState(false);
   const [showReview, setShowReview] = useState(false);
   const [showBackups, setShowBackups] = useState(false);
+  const [showImports, setShowImports] = useState(false);
   const [reviewCount, setReviewCount] = useState(0);
 
   const loadData = useCallback(async () => {
@@ -302,6 +306,8 @@ function MapperPage() {
     }
   }
 
+
+
   // ---------- render ----------
 
   if (loading) return <div className="loading-screen">Cargando OT Asset Mapper…</div>;
@@ -351,6 +357,7 @@ function MapperPage() {
         onShowLabelsChange={setShowLabels}
         onImport={importExcel}
         onExport={exportExcel}
+        onDeleteExcel={() => setShowImports(true)}
         onNewCommunication={() => newCommunication(selectedId ? { source_asset_id: selectedId } : {})}
         onOpenScan={() => setShowScan(true)}
         onOpenReview={() => setShowReview(true)}
@@ -359,7 +366,7 @@ function MapperPage() {
         busy={busy}
       />
 
-      <main className="workspace">
+      <ResizableWorkspace>
         <aside className="sidebar">
           <AssetList
             groups={listGroups}
@@ -404,24 +411,30 @@ function MapperPage() {
             onSelectAsset={selectAndCenter}
           />
         </aside>
-      </main>
+      </ResizableWorkspace>
 
       {notice && <div className="toast">{notice}</div>}
 
       {showScan && (
-        <Modal title="Escaneo de red OT" width={940} onClose={() => setShowScan(false)}>
+      <Modal title="Escaneo de red OT" width={940} floating onClose={() => setShowScan(false)}>
           <ScanPanel onDataChanged={handleDataChanged} assets={assets} />
         </Modal>
       )}
       {showReview && (
-        <Modal title="Bandeja de revisión" width={760} onClose={() => setShowReview(false)}>
+       <Modal title="Bandeja de revisión" width={760} floating onClose={() => setShowReview(false)}>
           <ReviewPanel onDataChanged={handleDataChanged} />
         </Modal>
       )}
 
-      {showBackups && (
-        <Modal title="Respaldos de la base" width={820} onClose={() => setShowBackups(false)}>
-          <BackupsPanel onDataChanged={handleDataChanged} />
+      {showImports && (
+        <Modal title="Importaciones de Excel" width={760} floating onClose={() => setShowImports(false)}>
+          <ExcelImportsPanel onDataChanged={handleDataChanged} />
+        </Modal>
+      )}
+
+      {showImports && (
+        <Modal title="Importaciones de Excel" width={760} floating onClose={() => setShowImports(false)}>
+          <ExcelImportsPanel onDataChanged={handleDataChanged} />
         </Modal>
       )}
 

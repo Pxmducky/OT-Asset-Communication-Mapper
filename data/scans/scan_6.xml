@@ -1,48 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE nmaprun>
 <?xml-stylesheet href="file:///usr/share/nmap/nmap.xsl" type="text/xsl"?>
-<!-- Nmap 7.99 scan initiated Tue Oct  6 14:15:25 2026 as: /usr/lib/nmap/nmap -&#45;privileged -sS -sV -O -T3 -&#45;max-rate 80 -p 80,443,135,139,445,3389,1433,3306 -&#45;script smb-os-discovery,http-title -oX - 172.16.99.8/32 -->
-<nmaprun scanner="nmap" args="/usr/lib/nmap/nmap -&#45;privileged -sS -sV -O -T3 -&#45;max-rate 80 -p 80,443,135,139,445,3389,1433,3306 -&#45;script smb-os-discovery,http-title -oX - 172.16.99.8/32" start="1791317725" startstr="Tue Oct  6 14:15:25 2026" version="7.99" xmloutputversion="1.05">
-<scaninfo type="syn" protocol="tcp" numservices="8" services="80,135,139,443,445,1433,3306,3389"/>
+<!-- Nmap 7.99 scan initiated Wed Nov  4 15:29:07 2026 as: /usr/lib/nmap/nmap -&#45;privileged -sS -sV -&#45;version-light -T2 -&#45;reason -&#45;max-rate 30 -p 21,22,23,80,102,135,139,443,445,502,515,554,631,1433,1883,2222,3306,3389,4840,5900,8000,8080,8443,9100,1194,20000,34964,37777,44818 -&#45;script banner,http-title,http-headers,ssl-cert,smb-os-discovery,s7-info,modbus-discover,enip-info,rtsp-methods -oX - 172.16.99.198/32 -->
+<nmaprun scanner="nmap" args="/usr/lib/nmap/nmap -&#45;privileged -sS -sV -&#45;version-light -T2 -&#45;reason -&#45;max-rate 30 -p 21,22,23,80,102,135,139,443,445,502,515,554,631,1433,1883,2222,3306,3389,4840,5900,8000,8080,8443,9100,1194,20000,34964,37777,44818 -&#45;script banner,http-title,http-headers,ssl-cert,smb-os-discovery,s7-info,modbus-discover,enip-info,rtsp-methods -oX - 172.16.99.198/32" start="1793827747" startstr="Wed Nov  4 15:29:07 2026" version="7.99" xmloutputversion="1.05">
+<scaninfo type="syn" protocol="tcp" numservices="29" services="21-23,80,102,135,139,443,445,502,515,554,631,1194,1433,1883,2222,3306,3389,4840,5900,8000,8080,8443,9100,20000,34964,37777,44818"/>
 <verbose level="0"/>
 <debugging level="0"/>
 <hosthint><status state="up" reason="unknown-response" reason_ttl="0"/>
-<address addr="172.16.99.8" addrtype="ipv4"/>
+<address addr="172.16.99.198" addrtype="ipv4"/>
 <hostnames>
 </hostnames>
 </hosthint>
-<host starttime="1791317725" endtime="1791317775"><status state="up" reason="echo-reply" reason_ttl="255"/>
-<address addr="172.16.99.8" addrtype="ipv4"/>
+<host starttime="1793827755" endtime="1793827795"><status state="up" reason="reset" reason_ttl="255"/>
+<address addr="172.16.99.198" addrtype="ipv4"/>
 <hostnames>
-<hostname name="MESDASPMMSRV04.bocar.com" type="PTR"/>
 </hostnames>
-<ports><port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="http" product="Microsoft HTTPAPI httpd" version="2.0" extrainfo="SSDP/UPnP" ostype="Windows" method="probed" conf="10"><cpe>cpe:/o:microsoft:windows</cpe></service><script id="http-server-header" output="Microsoft-HTTPAPI/2.0"><elem>Microsoft-HTTPAPI/2.0</elem>
-</script></port>
-<port protocol="tcp" portid="135"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="msrpc" product="Microsoft Windows RPC" ostype="Windows" method="probed" conf="10"><cpe>cpe:/o:microsoft:windows</cpe></service></port>
-<port protocol="tcp" portid="139"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="netbios-ssn" product="Microsoft Windows netbios-ssn" ostype="Windows" method="probed" conf="10"><cpe>cpe:/o:microsoft:windows</cpe></service></port>
-<port protocol="tcp" portid="443"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="https" method="table" conf="3"/></port>
-<port protocol="tcp" portid="445"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="microsoft-ds" method="table" conf="3"/></port>
-<port protocol="tcp" portid="1433"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="ms-sql-s" method="table" conf="3"/></port>
-<port protocol="tcp" portid="3306"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="mysql" method="table" conf="3"/></port>
-<port protocol="tcp" portid="3389"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="ms-wbt-server" method="table" conf="3"/></port>
+<ports><extraports state="filtered" count="28">
+<extrareasons reason="no-response" count="28" proto="tcp" ports="21-22,80,102,135,139,443,445,502,515,554,631,1194,1433,1883,2222,3306,3389,4840,5900,8000,8080,8443,9100,20000,34964,37777,44818"/>
+</extraports>
+<port protocol="tcp" portid="23"><state state="closed" reason="reset" reason_ttl="64"/><service name="telnet" method="table" conf="3"/></port>
 </ports>
-<os><portused state="open" proto="tcp" portid="80"/>
-<osmatch name="Oracle Virtualbox Slirp NAT bridge" accuracy="97" line="99982">
-<osclass type="bridge" vendor="Oracle" osfamily="Virtualbox" accuracy="97"><cpe>cpe:/o:oracle:virtualbox</cpe></osclass>
-<osclass type="bridge" vendor="Slirp" osfamily="Slirp" accuracy="97"><cpe>cpe:/a:danny_gasparovski:slirp</cpe></osclass>
-</osmatch>
-<osmatch name="AT&amp;T BGW210 voice gateway" accuracy="94" line="10195">
-<osclass type="VoIP adapter" vendor="AT&amp;T" osfamily="embedded" accuracy="94"/>
-</osmatch>
-<osmatch name="QEMU user mode network gateway" accuracy="93" line="101823">
-<osclass type="general purpose" vendor="QEMU" osfamily="QEMU" accuracy="93"><cpe>cpe:/a:qemu:qemu</cpe></osclass>
-</osmatch>
-</os>
-<tcpsequence index="0" difficulty="Trivial joke" values="1CFDE001,1CFFD401,1D01C801,1D03BC01,1D05B001,1D07A401"/>
-<ipidsequence class="Incremental" values="471B,471D,471F,4724,4729,472D"/>
-<tcptssequence class="none returned (unsupported)"/>
-<times srtt="2533" rttvar="2977" to="100000"/>
+<times srtt="715" rttvar="814" to="400000"/>
 </host>
-<runstats><finished time="1791317775" timestr="Tue Oct  6 14:16:15 2026" summary="Nmap done at Tue Oct  6 14:16:15 2026; 1 IP address (1 host up) scanned in 50.38 seconds" elapsed="50.38" exit="success"/><hosts up="1" down="0" total="1"/>
+<runstats><finished time="1793827795" timestr="Wed Nov  4 15:29:55 2026" summary="Nmap done at Wed Nov  4 15:29:55 2026; 1 IP address (1 host up) scanned in 47.92 seconds" elapsed="47.92" exit="success"/><hosts up="1" down="0" total="1"/>
 </runstats>
 </nmaprun>

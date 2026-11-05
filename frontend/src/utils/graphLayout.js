@@ -16,6 +16,8 @@ export function ipToNumber(ip) {
 
 export function groupKey(asset, mode) {
   switch (mode) {
+    case "segment":
+      return asset.segment || "Sin segmento";
     case "plant":
       return asset.plant || "Sin planta asignada";
     case "vlan":

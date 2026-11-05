@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE nmaprun>
+<?xml-stylesheet href="file:///usr/share/nmap/nmap.xsl" type="text/xsl"?>
+<!-- Nmap 7.99 scan initiated Wed Oct 28 16:53:34 2026 as: /usr/lib/nmap/nmap -&#45;privileged -sS -sV -&#45;version-light -T2 -&#45;reason -&#45;max-rate 30 -p 21,22,23,80,102,135,139,443,445,502,515,554,631,1433,1883,2222,3306,3389,4840,5900,8000,8080,8443,9100,1194,20000,34964,37777,44818 -&#45;script banner,http-title,http-headers,ssl-cert,smb-os-discovery,s7-info,modbus-discover,enip-info,rtsp-methods -oX - 172.16.99.243/32 -->
+<nmaprun scanner="nmap" args="/usr/lib/nmap/nmap -&#45;privileged -sS -sV -&#45;version-light -T2 -&#45;reason -&#45;max-rate 30 -p 21,22,23,80,102,135,139,443,445,502,515,554,631,1433,1883,2222,3306,3389,4840,5900,8000,8080,8443,9100,1194,20000,34964,37777,44818 -&#45;script banner,http-title,http-headers,ssl-cert,smb-os-discovery,s7-info,modbus-discover,enip-info,rtsp-methods -oX - 172.16.99.243/32" start="1793228014" startstr="Wed Oct 28 16:53:34 2026" version="7.99" xmloutputversion="1.05">
+<scaninfo type="syn" protocol="tcp" numservices="29" services="21-23,80,102,135,139,443,445,502,515,554,631,1194,1433,1883,2222,3306,3389,4840,5900,8000,8080,8443,9100,20000,34964,37777,44818"/>
+<verbose level="0"/>
+<debugging level="0"/>
+<hosthint><status state="up" reason="unknown-response" reason_ttl="0"/>
+<address addr="172.16.99.243" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+</hosthint>
+<host starttime="1793228020" endtime="1793228062"><status state="up" reason="reset" reason_ttl="255"/>
+<address addr="172.16.99.243" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><extraports state="filtered" count="28">
+<extrareasons reason="no-response" count="28" proto="tcp" ports="21-22,80,102,135,139,443,445,502,515,554,631,1194,1433,1883,2222,3306,3389,4840,5900,8000,8080,8443,9100,20000,34964,37777,44818"/>
+</extraports>
+<port protocol="tcp" portid="23"><state state="closed" reason="reset" reason_ttl="64"/><service name="telnet" method="table" conf="3"/></port>
+</ports>
+<times srtt="2069" rttvar="2466" to="400000"/>
+</host>
+<runstats><finished time="1793228062" timestr="Wed Oct 28 16:54:22 2026" summary="Nmap done at Wed Oct 28 16:54:22 2026; 1 IP address (1 host up) scanned in 48.67 seconds" elapsed="48.67" exit="success"/><hosts up="1" down="0" total="1"/>
+</runstats>
+</nmaprun>

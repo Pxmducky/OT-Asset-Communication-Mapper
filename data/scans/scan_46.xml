@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE nmaprun>
+<?xml-stylesheet href="file:///usr/share/nmap/nmap.xsl" type="text/xsl"?>
+<!-- Nmap 7.99 scan initiated Wed Oct 28 17:04:35 2026 as: /usr/lib/nmap/nmap -&#45;privileged -sS -sV -&#45;version-light -T2 -&#45;reason -&#45;max-rate 30 -p 21,22,23,80,102,135,139,443,445,502,515,554,631,1433,1883,2222,3306,3389,4840,5900,8000,8080,8443,9100,1194,20000,34964,37777,44818 -&#45;script banner,http-title,http-headers,ssl-cert,smb-os-discovery,s7-info,modbus-discover,enip-info,rtsp-methods -oX - 172.16.99.148/32 -->
+<nmaprun scanner="nmap" args="/usr/lib/nmap/nmap -&#45;privileged -sS -sV -&#45;version-light -T2 -&#45;reason -&#45;max-rate 30 -p 21,22,23,80,102,135,139,443,445,502,515,554,631,1433,1883,2222,3306,3389,4840,5900,8000,8080,8443,9100,1194,20000,34964,37777,44818 -&#45;script banner,http-title,http-headers,ssl-cert,smb-os-discovery,s7-info,modbus-discover,enip-info,rtsp-methods -oX - 172.16.99.148/32" start="1793228675" startstr="Wed Oct 28 17:04:35 2026" version="7.99" xmloutputversion="1.05">
+<scaninfo type="syn" protocol="tcp" numservices="29" services="21-23,80,102,135,139,443,445,502,515,554,631,1194,1433,1883,2222,3306,3389,4840,5900,8000,8080,8443,9100,20000,34964,37777,44818"/>
+<verbose level="0"/>
+<debugging level="0"/>
+<hosthint><status state="up" reason="unknown-response" reason_ttl="0"/>
+<address addr="172.16.99.148" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+</hosthint>
+<host starttime="1793228677" endtime="1793228980"><status state="up" reason="echo-reply" reason_ttl="255"/>
+<address addr="172.16.99.148" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><extraports state="closed" count="26">
+<extrareasons reason="reset" count="26" proto="tcp" ports="21-23,102,135,139,445,502,515,554,631,1194,1883,2222,3306,3389,4840,5900,8000,8080,8443,9100,20000,34964,37777,44818"/>
+</extraports>
+<port protocol="tcp" portid="80"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="http" method="table" conf="3"/></port>
+<port protocol="tcp" portid="443"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="http" product="thttpd" tunnel="ssl" method="probed" conf="10"><cpe>cpe:/a:acme:thttpd</cpe></service><script id="ssl-cert" output="Subject: commonName=00_05_B6_07_50_7A/organizationName=INSYS Microelectronics GmbH/stateOrProvinceName=Bayern/countryName=DE&#xa;Subject Alternative Name: email:insys@insys-tec.de&#xa;Issuer: commonName=INSYS Microelectronics GmbH/organizationName=INSYS Microelectronics GmbH/stateOrProvinceName=Bayern/countryName=DE&#xa;Public Key type: rsa&#xa;Public Key bits: 2048&#xa;Signature Algorithm: sha256WithRSAEncryption&#xa;Not valid before: 2017-11-09T17:50:51&#xa;Not valid after:  2027-10-28T17:50:51&#xa;MD5:     9fc4 4720 03ae cd03 29d4 6f24 2dd4 70d9&#xa;SHA-1:   62c5 6514 6bfd 5dee 44c7 50cc 5553 d9ac b917 47d8&#xa;SHA-256: f29a f576 7fdd 0979 2423 3931 8ae2 cbc6 19b4 f58f 5fdb 42e2 150d b0ef 8d62 020a"><table key="subject">
+<elem key="commonName">00_05_B6_07_50_7A</elem>
+<elem key="countryName">DE</elem>
+<elem key="emailAddress">insys@insys-tec.de</elem>
+<elem key="localityName">Regensburg</elem>
+<elem key="organizationName">INSYS Microelectronics GmbH</elem>
+<elem key="organizationalUnitName">icom</elem>
+<elem key="stateOrProvinceName">Bayern</elem>
+</table>
+<table key="issuer">
+<elem key="commonName">INSYS Microelectronics GmbH</elem>
+<elem key="countryName">DE</elem>
+<elem key="emailAddress">insys@insys-tec.de</elem>
+<elem key="localityName">Regensburg</elem>
+<elem key="organizationName">INSYS Microelectronics GmbH</elem>
+<elem key="organizationalUnitName">icom</elem>
+<elem key="stateOrProvinceName">Bayern</elem>
+</table>
+<table key="pubkey">
+<elem key="type">rsa</elem>
+<elem key="bits">2048</elem>
+<elem key="modulus">BA596BB784198180A8E44398E323449066E511390302C4FEC877F3631F8C6539EC520ECC7A2F9E2B310B98A3B2DE3DA59C4910AED012B329509B6B74AC52B8B0F2A96216903230D9C24B76087183E154864E3FC6498BBF2D2174D10E8715280A0DBE7B19ACC87EBB71F9BDD72623B6738A4F5E3D522D15BFDA5F0741E85F24D7EE274299D19C64B1FCAF141A867E0CA6A38F0F97CF54019604AAB6AAE28E8505C808F87AE9BCD3FC93C711327383C9D8C967FF42A729D6DDB54353CA66A8786E17B3BF1AFC96BB9548C5E01B8E2C125D3692E2591F36130467C7B264D10E63A81778737A9460056D13FEFAAB6C0488D63784A9697CF3AFD13554C57B2DD4CEB5</elem>
+<elem key="exponent">65537</elem>
+</table>
+<table key="extensions">
+<table>
+<elem key="name">X509v3 Basic Constraints</elem>
+<elem key="value">CA:FALSE</elem>
+</table>
+<table>
+<elem key="name">Netscape Cert Type</elem>
+<elem key="value">SSL Server</elem>
+</table>
+<table>
+<elem key="name">X509v3 Subject Key Identifier</elem>
+<elem key="value">D3:B3:A4:C0:95:8A:BA:E5:D6:93:2C:F4:E6:14:45:A4:0A:D3:32:82</elem>
+</table>
+<table>
+<elem key="name">X509v3 Authority Key Identifier</elem>
+<elem key="value">keyid:E9:4B:B8:53:24:1E:69:5F:64:25:38:E0:6C:B4:06:B6:EC:BF:A9:8F&#xa;DirName:/C=DE/ST=Bayern/L=Regensburg/O=INSYS Microelectronics GmbH/OU=icom/CN=INSYS Microelectronics GmbH/emailAddress=insys@insys-tec.de&#xa;serial:83:54:E5:D3:3D:79:B7:6B</elem>
+</table>
+<table>
+<elem key="name">X509v3 Issuer Alternative Name</elem>
+<elem key="value">email:insys@insys-tec.de</elem>
+</table>
+<table>
+<elem key="name">X509v3 Subject Alternative Name</elem>
+<elem key="value">email:insys@insys-tec.de</elem>
+</table>
+</table>
+<elem key="sig_algo">sha256WithRSAEncryption</elem>
+<table key="validity">
+<elem key="notBefore">2017-11-09T17:50:51</elem>
+<elem key="notAfter">2027-10-28T17:50:51</elem>
+</table>
+<elem key="md5">9fc4472003aecd0329d46f242dd470d9</elem>
+<elem key="sha1">62c565146bfd5dee44c750cc5553d9acb91747d8</elem>
+<elem key="sha256">f29af5767fdd0979242339318ae2cbc619b4f58f5fdb42e2150db0ef8d62020a</elem>
+<elem key="pem">-&#45;&#45;&#45;&#45;BEGIN CERTIFICATE-&#45;&#45;&#45;&#45;&#xa;MIIFQTCCBCmgAwIBAgIDAc/IMA0GCSqGSIb3DQEBCwUAMIGxMQswCQYDVQQGEwJE&#xa;RTEPMA0GA1UECBMGQmF5ZXJuMRMwEQYDVQQHEwpSZWdlbnNidXJnMSQwIgYDVQQK&#xa;ExtJTlNZUyBNaWNyb2VsZWN0cm9uaWNzIEdtYkgxDTALBgNVBAsTBGljb20xJDAi&#xa;BgNVBAMTG0lOU1lTIE1pY3JvZWxlY3Ryb25pY3MgR21iSDEhMB8GCSqGSIb3DQEJ&#xa;ARYSaW5zeXNAaW5zeXMtdGVjLmRlMB4XDTE3MTEwOTE3NTA1MVoXDTI3MTAyODE3&#xa;NTA1MVowgacxCzAJBgNVBAYTAkRFMQ8wDQYDVQQIEwZCYXllcm4xEzARBgNVBAcT&#xa;ClJlZ2Vuc2J1cmcxJDAiBgNVBAoTG0lOU1lTIE1pY3JvZWxlY3Ryb25pY3MgR21i&#xa;SDENMAsGA1UECxMEaWNvbTEaMBgGA1UEAxQRMDBfMDVfQjZfMDdfNTBfN0ExITAf&#xa;BgkqhkiG9w0BCQEWEmluc3lzQGluc3lzLXRlYy5kZTCCASIwDQYJKoZIhvcNAQEB&#xa;BQADggEPADCCAQoCggEBALpZa7eEGYGAqORDmOMjRJBm5RE5AwLE/sh382MfjGU5&#xa;7FIOzHovnisxC5ijst49pZxJEK7QErMpUJtrdKxSuLDyqWIWkDIw2cJLdghxg+FU&#xa;hk4/xkmLvy0hdNEOhxUoCg2+exmsyH67cfm91yYjtnOKT149Ui0Vv9pfB0HoXyTX&#xa;7idCmdGcZLH8rxQahn4MpqOPD5fPVAGWBKq2quKOhQXICPh66bzT/JPHETJzg8nY&#xa;yWf/Qqcp1t21Q1PKZqh4bhezvxr8lruVSMXgG44sEl02kuJZHzYTBGfHsmTRDmOo&#xa;F3hzepRgBW0T/vqrbASI1jeEqWl886/RNVTFey3UzrUCAwEAAaOCAWgwggFkMAkG&#xa;A1UdEwQCMAAwEQYJYIZIAYb4QgEBBAQDAgZAMB0GA1UdDgQWBBTTs6TAlYq65daT&#xa;LPTmFEWkCtMygjCB5gYDVR0jBIHeMIHbgBTpS7hTJB5pX2QlOOBstAa27L+pj6GB&#xa;t6SBtDCBsTELMAkGA1UEBhMCREUxDzANBgNVBAgTBkJheWVybjETMBEGA1UEBxMK&#xa;UmVnZW5zYnVyZzEkMCIGA1UEChMbSU5TWVMgTWljcm9lbGVjdHJvbmljcyBHbWJI&#xa;MQ0wCwYDVQQLEwRpY29tMSQwIgYDVQQDExtJTlNZUyBNaWNyb2VsZWN0cm9uaWNz&#xa;IEdtYkgxITAfBgkqhkiG9w0BCQEWEmluc3lzQGluc3lzLXRlYy5kZYIJAINU5dM9&#xa;ebdrMB0GA1UdEgQWMBSBEmluc3lzQGluc3lzLXRlYy5kZTAdBgNVHREEFjAUgRJp&#xa;bnN5c0BpbnN5cy10ZWMuZGUwDQYJKoZIhvcNAQELBQADggEBAED9nNBFYTUqWlPk&#xa;6vTaOFz2uX7Y1ZvQkRBpth/kBa9SE7CX2/pCJWkZCnjqMCex2D4BEsTjLmuKK62Q&#xa;2xOXdVUekx+qDZZSKGDZSpyQ+xsSbEi2bQr3OQRhubuqPPoofqNvBNule9PCNiHW&#xa;ZYYMQlAXK/zoNjRfRXPAV+/iWfVx9AMCgL2gcP8rEXPXMgpOcU35Jtz4LR7JSFnx&#xa;WbiOgmDpnlyG3bZfqr3jSRSMP+ZzA6fGpLIHMtsgMSvCSyF1n+kbOtW74H/7sd/e&#xa;yZS0nTOsgZ7SbWvpAnvUEWDJjqf3xjchel7EmekrNPkHTKaSDbcm5n02Q9aRPMzT&#xa;pGwohBA=&#xa;-&#45;&#45;&#45;&#45;END CERTIFICATE-&#45;&#45;&#45;&#45;&#xa;</elem>
+</script></port>
+<port protocol="tcp" portid="1433"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="ms-sql-s" method="table" conf="3"/></port>
+</ports>
+<times srtt="38345" rttvar="29638" to="400000"/>
+</host>
+<runstats><finished time="1793228980" timestr="Wed Oct 28 17:09:40 2026" summary="Nmap done at Wed Oct 28 17:09:40 2026; 1 IP address (1 host up) scanned in 304.41 seconds" elapsed="304.41" exit="success"/><hosts up="1" down="0" total="1"/>
+</runstats>
+</nmaprun>

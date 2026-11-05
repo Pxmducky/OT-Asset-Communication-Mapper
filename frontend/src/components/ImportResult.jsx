@@ -17,6 +17,17 @@ function ImportResult({ result, onClose }) {
             </div>
           ))}
         </div>
+
+        {result.notes?.length > 0 && (
+          <>
+            <h4>Cómo se interpretó el archivo</h4>
+            <ul className="import-errors">
+              {result.notes.map((note) => (
+                <li key={note}>{note}</li>
+              ))}
+            </ul>
+          </>
+        )}
   
         {result.errors.length > 0 && (
           <>

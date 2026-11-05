@@ -1,12 +1,19 @@
 from sqlalchemy import text
 from sqlalchemy.engine import Engine
 
+# SQLite solo permite ADD COLUMN (no DROP/ALTER de columnas), así que esto es
+# idempotente: solo agrega las que falten. Las tablas nuevas las crea create_all().
 _ASSET_COLUMNS = {
     "status": "VARCHAR(20) NOT NULL DEFAULT 'confirmed'",
     "confidence": "INTEGER",
     "discovery_source": "VARCHAR(20) NOT NULL DEFAULT 'manual'",
     "last_seen": "DATETIME",
     "os": "VARCHAR(255)",
+    "import_id": "INTEGER",  # V2: importación de Excel que creó el activo
+}
+
+_COMMUNICATION_COLUMNS = {
+    "import_id": "INTEGER",  # V2: importación de Excel que creó la comunicación
 }
 
 _ALLOWED_NETWORK_COLUMNS = {
@@ -25,7 +32,12 @@ def _add_missing(connection, table: str, columns: dict) -> None:
 
 
 def run_lightweight_migrations(engine: Engine) -> None:
-    """Agrega columnas nuevas que falten a tablas ya existentes (solo SQLite)."""
+    """Agrega a tablas ya existentes las columnas nuevas que falten (solo SQLite).
+
+    create_all() crea las tablas nuevas, pero nunca modifica una tabla que ya
+    existe. Si la columna ya está, no se toca; los registros existentes toman
+    el DEFAULT (o NULL).
+    """
     with engine.begin() as connection:
         tables = {
             row[0]
@@ -33,5 +45,7 @@ def run_lightweight_migrations(engine: Engine) -> None:
         }
         if "assets" in tables:
             _add_missing(connection, "assets", _ASSET_COLUMNS)
+        if "communications" in tables:
+            _add_missing(connection, "communications", _COMMUNICATION_COLUMNS)
         if "allowed_networks" in tables:
             _add_missing(connection, "allowed_networks", _ALLOWED_NETWORK_COLUMNS)

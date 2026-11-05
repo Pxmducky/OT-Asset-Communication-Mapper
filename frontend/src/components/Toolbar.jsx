@@ -12,6 +12,7 @@ function Toolbar({
   canFocus,
   onImport,
   onExport,
+  onDeleteExcel,
   onNewCommunication,
   onOpenScan,
   onOpenReview,
@@ -73,9 +74,12 @@ function Toolbar({
         {busy ? "Procesando…" : "⬆ Importar Excel"}
       </button>
       <button type="button" className="button secondary" disabled={busy} onClick={onExport}>
-        ⬇ Descargar Excel
+        ⬇ Descargar Inventario
       </button>
       <input ref={fileInput} type="file" accept=".xlsx,.xlsm" hidden onChange={handleFile} />
+      <button type="button" className="button danger" disabled={busy} onClick={onDeleteExcel}>
+        🗑 Borrar datos del Inventario
+      </button>
     </div>
   );
 }
